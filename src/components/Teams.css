@@ -1,0 +1,11 @@
+#numberOfTeams .p-inputtext {
+    max-width: 4rem;
+}
+
+#numberOfGames .p-inputtext {
+    max-width: 6rem;
+}
+
+#numberOfGroups .p-inputtext {
+    max-width: 6rem;
+}

@@ -1,67 +1,91 @@
+import { v4 as uuidv4 } from 'uuid'
+
 export type Team = {
-  id: number
+  id: string
   name: string
+  points: number
+  diff: number
+  group?: string
 }
 
 export type Game = {
-  id: number
+  id: string,
   label: string
   awayTeam: Team
   homeTeam: Team
   round: number
   score?: string
   winner?: string
+  group?: string
 }
 
 export interface GamesEngineType {
   teams: Team[]
   games: Game[]
-  setGameResult: (position: number, score: string) => void
+  numberOfGroups: number
 }
 
 export class GamesEngine {
   teams: Team[] = []
   games: Game[] = []
 
-  constructor(teams: Team[]) {
+  constructor(teams: string[], groups: number) {
     if (teams.length % 2) throw new Error("Teams length must be even")
 
-    this.teams = this.shuffle(teams)
-    this.generateGames()
+    if (groups === 1) {
+      const gameTeams = teams.map((t) => this.createTeam(t, 'A'))
+      this.teams = this.shuffle(gameTeams)
+      this.generateGames(this.teams, 'A')
+    }
+    else if (groups === 2) {
+      const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
+      this.generateGames(this.shuffle(groupA), 'A')
+
+      const groupB = teams.slice(4, 8).map((t) => this.createTeam(t, 'B'))
+      this.generateGames(this.shuffle(groupB), 'B')
+
+      this.teams = [...groupA, ...groupB]
+    }
+    else if (groups === 3) {
+      const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
+      this.generateGames(this.shuffle(groupA), 'A')
+
+      const groupB = teams.slice(4, 8).map((t) => this.createTeam(t, 'B'))
+      this.generateGames(this.shuffle(groupB), 'B')
+
+      const groupC = teams.slice(8, 12).map((t) => this.createTeam(t, 'C'))
+      this.generateGames(this.shuffle(groupC), 'C')
+
+      this.teams = [...groupA, ...groupB, ...groupC]
+    }
   }
 
-  get getTeams(): Team[] {
-    return this.teams
+  private createTeam(name: string, group: string) {
+    return { id: uuidv4(), name, points: 0, group, diff: 0 }
   }
 
-  get getGames(): Game[] {
-    return this.games
-  }
-
-  private generateGames() {
-    const numberOfTeams = this.teams.length
-    const homeTeams: Team[] = this.teams.slice(0, numberOfTeams / 2)
-    const awayTeams: Team[] = this.teams.slice(numberOfTeams / 2, numberOfTeams)
-    let id = 1
+  private generateGames(teams: Team[], group: string) {
+    const numberOfTeams = 4
+    const homeTeams: Team[] = teams.slice(0, numberOfTeams / 2)
+    const awayTeams: Team[] = teams.slice(numberOfTeams / 2, numberOfTeams)
 
     for (let i = 0; i < numberOfTeams - 1; i++) {
       const round = i + 1
 
       for (let j = 0; j < homeTeams.length; j++) {
         this.games.push({
-          id,
+          id: uuidv4(),
           score: '',
           winner: undefined,
           label: `${homeTeams[j].name} vs ${awayTeams[j].name}`,
           homeTeam: homeTeams[j], // teams[0]
           awayTeam: awayTeams[j], // teams[1]
-          round
+          round,
+          group
         })
-
-        id++
       }
 
-      // Rotation
+      // teams rotation
       const fixedTeam = homeTeams.shift()
       homeTeams.unshift(awayTeams.shift()!)
       homeTeams.unshift(fixedTeam!)
@@ -69,7 +93,7 @@ export class GamesEngine {
     }
   }
 
-  private shuffle(array: Array<any>): Array<any> {
+  private shuffle(array: Team[]): Team[] {
     let i = array.length
 
     while (i--) {

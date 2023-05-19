@@ -1,32 +1,47 @@
 import { Game } from '../logic/games-engine'
 import { Button } from 'primereact/button'
-import { InputText } from 'primereact/inputtext'
 import { Panel } from 'primereact/panel'
+import { InputMask } from "primereact/inputmask"
 import { Form, Formik } from 'formik'
 import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 
 export const GamesComponent = () => {
-  const { games, gamesPerRound, handleUpdateScore, numberOfRounds } = useContext(GamesContext)
+  const { games, gamesPerRound, handleUpdateScore, generateRound4, round4Games } = useContext(GamesContext)
 
-  if (games.length === 0)
-    return <p>Set the teams name's first to generate the games</p>
+  if (games.length === 0) return <p className="font-bold">Set teams first to generate the games</p>
 
   return (
-    <div className="flex-1">
-      <h1>Games</h1>
-
-      {[...Array(numberOfRounds).keys()].map(r => (
+    <div className="flex-1" style={{ marginBottom: '24rem'}}>
+      {[...Array(3).keys()].map(r => (
         <Panel key={r} className="mb-2" header={`Round ${r+1}`} toggleable collapsed>
-          {gamesPerRound(r+1).map((game, idx) => (
-            <GameForm
-              key={idx}
-              game={game}
-              handleSubmit={(score) => handleUpdateScore(idx, score)}
-            />
+          {gamesPerRound(r+1).map((game, index) => (
+            <>
+              <p className="font-bold m-0 mb-3">{`Group ${game.group}`}</p>
+              <GameForm
+                key={index}
+                game={game}
+                handleSubmit={(score) => handleUpdateScore(game.id, score)}
+              />
+            </>
           ))}
         </Panel>
       ))}
+
+      <Panel className="mb-2" header={`Round 4`} toggleable collapsed>
+        {round4Games.length === 0 && <Button onClick={generateRound4} label="Generate Games" />}
+
+        {round4Games.map((game, index) => (
+          <>
+            <p className="font-bold m-0 mb-3">{`Semi Finals ${game.group}`}</p>
+            <GameForm
+              key={index}
+              game={game}
+              handleSubmit={(score) => handleUpdateScore(game.id, score)}
+            />
+          </>
+        ))}
+      </Panel>
     </div>
   )
 }
@@ -53,12 +68,20 @@ const GameForm = ({ game, handleSubmit }: GameFormType ) => (
           <span className="p-input-icon-left">
             <i className="material-symbols-outlined" style={{ marginTop: '-0.8rem'}}>sports_baseball</i>
 
-            <InputText
-              placeholder="Result"
+            {/* <InputText
+              style={{ paddingLeft: '4rem'}}
               className="w-8rem"
-              style={{ paddingLeft: '3rem'}}
+              placeholder="Result"
               value={values.score}
               onChange={(e) => setFieldValue('score', e.target.value!)}
+            /> */}
+
+            <InputMask
+              style={{ paddingLeft: '4rem'}}
+              className="w-8rem"
+              value={values.score}
+              onChange={(e) => setFieldValue('score', e.target.value!)}
+              mask="9-9"
             />
           </span>
 
@@ -75,39 +98,3 @@ const GameForm = ({ game, handleSubmit }: GameFormType ) => (
     )}
   </Formik>
 )
-
-
-// {games.length > 0 &&
-//   <Formik
-//     initialValues={{
-//       games: games
-//     }}
-//     onSubmit={(values) => handleSubmit(values)}
-//   >
-//     {({ values, setFieldValue }) => (
-//       <Form>
-//         <FieldArray
-//           name="games"
-//           render={() => (
-//             <>
-//               {values.games.map((game, index) => (
-//                 <div className="flex gap-2 align-items-center" key={index}>
-//                   {index % 4 === 0 ? <p className="font-bold">Round {game.round}</p> : null}
-
-//                   <p>{game.label}</p>
-
-//                   <InputText
-//                     value={game.score}
-//                     onChange={(e) => setFieldValue(`games.${index}.score`, e.target.value!)}
-//                   />
-//                 </div>
-//               ))}
-//             </>
-//           )}
-//         />
-
-//         <Button className="mt-3" type="submit" label="Save" />
-//       </Form>
-//     )}
-//   </Formik>
-// }
