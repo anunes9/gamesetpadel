@@ -1,30 +1,23 @@
-import { useState } from 'react'
-import { Card, Title, Text, Grid } from "@tremor/react";
+import "primeflex/primeflex.css" // flex
+import "primeicons/primeicons.css" //icons
+import "primereact/resources/primereact.min.css" //core css
+import "primereact/resources/themes/lara-light-indigo/theme.css" //theme
+import { GamesComponent } from "./components/Games"
+import { GameContextProvider } from "./context/GameContext"
+import { TeamsComponent } from "./components/Teams"
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <main>
-      <Title>Padel Games</Title>
-      <Text>Create and manage your tournaments!</Text>
 
-      <Card className="mt-6">
-        <div className="h-96" />
-      </Card>
+const App = () => (
+  <>
+    <GameContextProvider>
+      <h1 className="mt-0 ">Padel Games</h1>
 
-      <Grid numColsMd={2} className="mt-6 gap-6">
-        <Card>
-          {/* Placeholder to set height */}
-          <div className="h-28" />
-        </Card>
-        <Card>
-          {/* Placeholder to set height */}
-          <div className="h-28" />
-        </Card>
-      </Grid>
-    </main>
-  )
-}
+      <TeamsComponent />
+
+      <GamesComponent />
+    </GameContextProvider>
+  </>
+)
 
 export default App
