@@ -6,8 +6,22 @@ import { Form, Formik } from 'formik'
 import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 
-export const GamesComponent = () => {
-  const { games, gamesPerRound, handleUpdateScore, generateRound4, round4Games } = useContext(GamesContext)
+export const GamesComponent = ({ showToast }: { showToast: (detail: string) => void}) => {
+  const {
+    games,
+    gamesPerRound,
+    generateRound4,
+    generateRound5,
+    handleUpdateScore,
+    numberOfGroups,
+    round4Games,
+    round5Games
+  } = useContext(GamesContext)
+
+  const updateScore = (game: Game, score: string, round?: number) => {
+    handleUpdateScore(game.id, score, round)
+    showToast('Game Result Saved!')
+  }
 
   if (games.length === 0) return <p className="font-bold">Set teams first to generate the games</p>
 
@@ -16,32 +30,53 @@ export const GamesComponent = () => {
       {[...Array(3).keys()].map(r => (
         <Panel key={r} className="mb-2" header={`Round ${r+1}`} toggleable collapsed>
           {gamesPerRound(r+1).map((game, index) => (
-            <>
+            <div key={index}>
               <p className="font-bold m-0 mb-3">{`Group ${game.group}`}</p>
               <GameForm
                 key={index}
                 game={game}
-                handleSubmit={(score) => handleUpdateScore(game.id, score)}
+                handleSubmit={(score) => updateScore(game, score)}
               />
-            </>
+            </div>
           ))}
         </Panel>
       ))}
 
-      <Panel className="mb-2" header={`Round 4`} toggleable collapsed>
-        {round4Games.length === 0 && <Button onClick={generateRound4} label="Generate Games" />}
+      {numberOfGroups > 1 && (
+        <>
+          <Panel className="mb-2" header={`Semi-Finals`} toggleable collapsed>
+            {round4Games.length === 0 && <Button onClick={generateRound4} label="Generate Games" />}
 
-        {round4Games.map((game, index) => (
-          <>
-            <p className="font-bold m-0 mb-3">{`Semi Finals ${game.group}`}</p>
-            <GameForm
-              key={index}
-              game={game}
-              handleSubmit={(score) => handleUpdateScore(game.id, score)}
-            />
-          </>
-        ))}
-      </Panel>
+            {round4Games.map((game, index) => (
+              <div key={index}>
+                <p className="font-bold m-0 mb-3">{`Semi-Finals ${game.group}`}</p>
+
+                <GameForm
+                  key={index}
+                  game={game}
+                  handleSubmit={(score) => updateScore(game, score, 4)}
+                />
+              </div>
+            ))}
+          </Panel>
+
+          <Panel className="mb-2" header={`Finals`} toggleable collapsed>
+            {round5Games.length === 0 && <Button onClick={generateRound5} label="Generate Games" />}
+
+            {round5Games.map((game, index) => (
+              <div key={index}>
+                <p className="font-bold m-0 mb-3">{`Finals ${game.group}`}</p>
+
+                <GameForm
+                  key={index}
+                  game={game}
+                  handleSubmit={(score) => updateScore(game, score, 5)}
+                />
+              </div>
+            ))}
+          </Panel>
+        </>
+      )}
     </div>
   )
 }

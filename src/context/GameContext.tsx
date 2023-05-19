@@ -15,13 +15,15 @@ export const sortTeams = (a: Team, b: Team) => b.points - a.points || b.diff - a
 interface GamesContextType {
   games: Game[]
   round4Games: Game[]
+  round5Games: Game[]
   teams: Team[]
   numberOfRounds: number
   numberOfGroups: number
   gamesPerRound: (r: number) => Game[]
-  handleUpdateScore: (is: string, score: string) => void
+  handleUpdateScore: (is: string, score: string, round?: number) => void
   handleSetTeams: (teams: string[], rounds: number, groups: number) => void
   generateRound4: () => void
+  generateRound5: () => void
 }
 
 export const GamesContext = createContext({} as GamesContextType)
@@ -29,6 +31,7 @@ export const GamesContext = createContext({} as GamesContextType)
 export const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [games, setGames] = useState([] as unknown as Game[])
   const [round4Games, setRound4Games] = useState([] as unknown as Game[])
+  const [round5Games, setRound5Games] = useState([] as unknown as Game[])
   const [teams, setTeams] = useState([] as unknown as Team[])
   const [numberOfRounds, setNumberOfRounds] = useState(5)
   const [numberOfGroups, setNumberOfGroups] = useState(1)
@@ -37,18 +40,21 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const engine = new GamesEngine(teams, groups)
     setGames(engine.games as unknown as Game[])
     setTeams(engine.teams as unknown as Team[])
+    setRound4Games([])
+    setRound5Games([])
     setNumberOfRounds(rounds)
     setNumberOfGroups(groups)
   }
 
-  const handleUpdateScore = (id: string, score: string) => {
+  const handleUpdateScore = (id: string, score: string, round?: number) => {
     let winner = undefined as unknown as string
     if (score) {
       const [home, away] = score.split('-')
       winner = home > away ? 'home' : 'away'
     }
 
-    const copyGames = [...games]
+    const copyGames = round === 4 ? [...round4Games] : [...games]
+    const updateGames = round === 4 ? setRound4Games : setGames
 
     copyGames.map(game => {
       if (game.id === id) {
@@ -59,14 +65,13 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       return game
     })
 
-    setGames(copyGames)
+    updateGames(copyGames)
     calculatePoints()
   }
 
   const calculatePoints = () => {
     // resets team points
     const copyTeams = [...teams.map(team => ({ ...team, points: 0 }))]
-
 
     games.map(game => {
       // get winner team id
@@ -130,6 +135,36 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     // setGames([...games, ...copyGames])
   }
 
+  const generateRound5 = () => {
+    let copyGames = [] as unknown as Game[]
+
+    const getWinner = (game: Game) => game.winner === 'home' ? game.homeTeam : game.awayTeam
+    const getLoser = (game: Game) => game.winner === 'home' ? game.awayTeam : game.homeTeam
+
+    if (numberOfGroups === 2) {
+      const topGroup = round4Games.filter(team => team.group === 'Top')
+      const bottomGroup = round4Games.filter(team => team.group === 'Bottom')
+
+      const winnerTop1 = getWinner(topGroup[0])
+      const winnerTop2 = getWinner(topGroup[1])
+      const loserTop1 = getLoser(topGroup[0])
+      const loserTop2 = getLoser(topGroup[1])
+
+      copyGames = addGame(copyGames, winnerTop1, winnerTop2, 5, 'Top')
+      copyGames = addGame(copyGames, loserTop1, loserTop2, 5, 'Top')
+
+      const winnerBottom1 = getWinner(bottomGroup[0])
+      const winnerBottom2 = getWinner(bottomGroup[1])
+      const loserBottom1 = getLoser(bottomGroup[0])
+      const loserBottom2 = getLoser(bottomGroup[1])
+
+      copyGames = addGame(copyGames, winnerBottom1, winnerBottom2, 5, 'Bottom')
+      copyGames = addGame(copyGames, loserBottom1, loserBottom2, 5, 'Bottom')
+    }
+
+    setRound5Games(copyGames)
+  }
+
   const addGame = (games: Game[], homeTeam: Team, awayTeam: Team, round: number, group: string) => {
     return [...games, {
       id: uuidv4(),
@@ -156,7 +191,9 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         handleSetTeams,
         handleUpdateScore,
         generateRound4,
-        round4Games
+        generateRound5,
+        round4Games,
+        round5Games
       }}
     >
       {children}

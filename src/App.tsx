@@ -6,19 +6,33 @@ import { GamesComponent } from "./components/Games"
 import { TeamsComponent } from "./components/Teams"
 import { ResultsComponent } from "./components/Results"
 import { TabView, TabPanel } from 'primereact/tabview'
+import { Toast } from 'primereact/toast'
+import { useRef, useState } from "react"
 
 const App = () => {
+  const toast = useRef<Toast>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
   return (
     <>
       <p className="text-4xl font-bold mt-0 text-center text-color">Padel Games</p>
 
-      <TabView>
+      <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
         <TabPanel header="Teams" leftIcon="pi pi-user mr-2">
-          <TeamsComponent />
+          <TeamsComponent
+            handleSuccess={(detail: string) => {
+              toast.current?.show({ severity: 'success', summary: 'Success', detail})
+              setActiveIndex(1)
+            }}
+          />
         </TabPanel>
 
         <TabPanel header="Games" leftIcon="pi pi-calendar ml-2">
-          <GamesComponent />
+          <GamesComponent
+            showToast={(detail: string) => {
+              toast.current?.show({ severity: 'success', summary: 'Success', detail})
+            }}
+          />
         </TabPanel>
 
         <TabPanel header="Results" leftIcon="pi pi-search mr-2">
@@ -26,9 +40,7 @@ const App = () => {
         </TabPanel>
       </TabView>
 
-      {/* <TeamsComponent />
-      <ResultsComponent />
-      <GamesComponent /> */}
+      <Toast ref={toast} position="top-center" />
     </>
   )
 }

@@ -6,7 +6,7 @@ import { useContext } from 'react'
 import { GamesContext, letters } from '../context/GameContext'
 import './Teams.css'
 
-export const TeamsComponent = () => {
+export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: string) => void }) => {
   const { handleSetTeams } = useContext(GamesContext)
 
   return (
@@ -26,7 +26,10 @@ export const TeamsComponent = () => {
           'Vitor Fonseca / Filipe Marques'
         ]
       }}
-      onSubmit={(values) => handleSetTeams(values.teams, values.numberOfGames, values.numberOfGroups)}
+      onSubmit={(values) => {
+        handleSetTeams(values.teams, values.numberOfGames, values.numberOfGroups)
+        handleSuccess('Teams saved!')
+      }}
     >
       {({ values, setFieldValue }) => (
         <Form>
