@@ -13,7 +13,7 @@ export const ResultsComponent = () => {
     content: { className: 'p-0' }
   }
 
-  if (teams.length === 0) return <p className="font-bold">Set teams first to generate the games</p>
+  if (teams.length === 0) return <p className="font-bold">Set teams first to generate the results</p>
 
   const labelTemplate = (game: Game) => (
     <div className="flex flex-column">

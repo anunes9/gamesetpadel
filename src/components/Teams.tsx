@@ -1,38 +1,57 @@
 import { InputNumber } from 'primereact/inputnumber'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
-import { FieldArray, Form, Formik } from 'formik'
+import { FieldArray, Form, Formik, FormikTouched, getIn } from 'formik'
 import { useContext } from 'react'
 import { GamesContext, letters } from '../context/GameContext'
+import { FormikPersist } from './FormikPersist'
 import './Teams.css'
 
+type FormType = {
+  numberOfTeams: number;
+  numberOfGroups: number;
+  numberOfGames: number;
+  teams: string[];
+}
+
 export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: string) => void }) => {
-  const { handleSetTeams } = useContext(GamesContext)
+  const { games, handleSetTeams, handleResetGames } = useContext(GamesContext)
+  const disabled = games.length > 0
+
+  const InputError = ({ value, touched, field }:
+    { value: string, touched: FormikTouched<FormType>, field: string }) =>
+  {
+    if (value === '' && getIn(touched, field)) return <small className="p-error">Team cannot be empty</small>
+    return null
+  }
 
   return (
     <Formik
       initialValues={{
-        numberOfTeams: 8,
-        numberOfGroups: 2,
-        numberOfGames: 5,
-        teams: [
-          'Andre Nunes / Tiago Coelho',
-          'Joao Goncalves / Marco Costa',
-          'Hugo Condenso / Nuno Correia',
-          'Pedro Silva / Jorge Costa',
-          'Goncalo Ferreira / Joao Pedro',
-          'Tiago Marques / Jorge Fernando',
-          'Francisco Perreira / Miguel Torres',
-          'Vitor Fonseca / Filipe Marques'
-        ]
+        numberOfTeams: 4,
+        numberOfGroups: 1,
+        numberOfGames: 3, // or 5 for more than 4 teams
+        teams: ['', '', '', '']
       }}
       onSubmit={(values) => {
         handleSetTeams(values.teams, values.numberOfGames, values.numberOfGroups)
         handleSuccess('Teams saved!')
       }}
+      validate={(values) => {
+        let teamError = undefined
+
+        values.teams.map(t => {
+          if (t === '') teamError = true
+        })
+
+        return teamError ? { teams: teamError } : {}
+
+      }}
     >
-      {({ values, setFieldValue }) => (
+      {({ values, touched, setFieldValue, handleReset }) => (
         <Form>
+          <FormikPersist name="formState" />
+
           <div
             className="flex flex-column md:flex-row gap-3 align-items-start md:align-items-end justify-content-between"
           >
@@ -40,6 +59,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
               <label htmlFor="numberOfTeams" className="font-bold block mb-2">Number of teams</label>
 
               <InputNumber
+                disabled={disabled}
                 id="numberOfTeams"
                 value={values.numberOfTeams}
                 onValueChange={(e) => {
@@ -48,10 +68,12 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                   if (e.value! > values.numberOfTeams) {
                     setFieldValue('teams', [...oldTeams, '', '', '', ''])
                     setFieldValue('numberOfGroups', (oldTeams.length + 4) / 4)
+                    setFieldValue('numberOfGames', (oldTeams.length + 4) === 4 ? 3 : 5 )
                   }
                   else {
                     setFieldValue('teams', [...oldTeams.slice(0, e.value!)])
                     setFieldValue('numberOfGroups', (oldTeams.length - 4) / 4)
+                    setFieldValue('numberOfGames', (oldTeams.length - 4) === 4 ? 3 : 5 )
                   }
                 }}
                 buttonLayout="horizontal"
@@ -61,6 +83,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                 incrementButtonClassName="p-button-success"
                 incrementButtonIcon="pi pi-plus"
                 min={4}
+                max={16}
                 showButtons
                 step={4}
               />
@@ -111,20 +134,36 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                       <p className="font-bold">{`#${index + 1}`}</p>
 
                       <InputText
+                        disabled={disabled}
                         className="p-inputtext-sm w-11"
                         id={`teams.${index}`}
                         name={team}
                         value={team}
                         onChange={(e) => setFieldValue(`teams.${index}`, e.target.value)}
                       />
+
                     </div>
+
+                    <InputError field={`teams.${index}`} touched={touched} value={team} />
                   </div>
                 ))}
               </>
             )}
           />
 
-          <Button className="mt-3" type="submit" label="Save teams" />
+          <div className="flex flex-row justify-content-end gap-4 mt-4">
+            {!disabled && <Button type="submit" label="Save teams" />}
+
+            <Button
+              type="button"
+              onClick={() => {
+                handleReset()
+                handleResetGames()
+              }}
+              label="Reset teams"
+              severity="danger"
+            />
+          </div>
         </Form>
       )}
     </Formik>

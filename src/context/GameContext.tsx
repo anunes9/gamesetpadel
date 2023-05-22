@@ -4,13 +4,23 @@ import 'primeicons/primeicons.css' //icons
 import 'primereact/resources/primereact.min.css' //core css
 import 'primereact/resources/themes/lara-light-indigo/theme.css' //theme
 import { Game, GamesEngine, Team } from '../logic/games-engine'
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import isEqual from 'react-fast-compare'
 
 export const letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M"]
 
 // sort teams by win games and by diff of points
 export const sortTeams = (a: Team, b: Team) => b.points - a.points || b.diff - a.diff
+
+type SavedData  = {
+  games: Game[]
+  round4Games: Game[]
+  round5Games: Game[]
+  teams: Team[]
+  numberOfRounds: number
+  numberOfGroups: number
+}
 
 interface GamesContextType {
   games: Game[]
@@ -24,26 +34,65 @@ interface GamesContextType {
   handleSetTeams: (teams: string[], rounds: number, groups: number) => void
   generateRound4: () => void
   generateRound5: () => void
+  handleResetGames: () => void
 }
 
 export const GamesContext = createContext({} as GamesContextType)
 
-export const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [games, setGames] = useState([] as unknown as Game[])
-  const [round4Games, setRound4Games] = useState([] as unknown as Game[])
-  const [round5Games, setRound5Games] = useState([] as unknown as Game[])
-  const [teams, setTeams] = useState([] as unknown as Team[])
-  const [numberOfRounds, setNumberOfRounds] = useState(5)
-  const [numberOfGroups, setNumberOfGroups] = useState(1)
+const localStorageKey = 'contextState'
 
-  const handleSetTeams = (teams: string[], rounds: number, groups: number) => {
-    const engine = new GamesEngine(teams, groups)
-    setGames(engine.games as unknown as Game[])
-    setTeams(engine.teams as unknown as Team[])
+export const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const savedData = window.localStorage.getItem(localStorageKey)
+  const initialData: SavedData = savedData
+    ? JSON.parse(savedData)
+    : {
+      games: [],
+      teams: [],
+      round4Games: [],
+      round5Games: [],
+      numberOfRounds: 3,
+      numberOfGroups: 1,
+    }
+  const [games, setGames] = useState(initialData.games as unknown as Game[])
+  const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[])
+  const [round5Games, setRound5Games] = useState(initialData.round4Games as unknown as Game[])
+  const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
+  const [numberOfRounds, setNumberOfRounds] = useState(initialData.numberOfRounds)
+  const [numberOfGroups, setNumberOfGroups] = useState(initialData.numberOfGroups)
+
+  useEffect(() => {
+    const data = JSON.stringify({
+      games,
+      teams,
+      numberOfRounds,
+      numberOfGroups,
+      round4Games,
+      round5Games
+    })
+
+    if (!isEqual(savedData, data)) window.localStorage.setItem(localStorageKey, data)
+  }, [games, teams, numberOfRounds, numberOfGroups, round4Games, round5Games])
+
+  const handleResetGames = () => {
+    window.localStorage.removeItem(localStorageKey)
+    setGames([])
     setRound4Games([])
     setRound5Games([])
-    setNumberOfRounds(rounds)
-    setNumberOfGroups(groups)
+    setTeams([])
+    setNumberOfRounds(3)
+    setNumberOfGroups(1)
+  }
+
+  const handleSetTeams = (newTeams: string[], rounds: number, groups: number) => {
+    if (JSON.stringify(newTeams) !== JSON.stringify(teams)) {
+      const engine = new GamesEngine(newTeams, groups)
+      setGames(engine.games as unknown as Game[])
+      setTeams(engine.teams as unknown as Team[])
+      setRound4Games([])
+      setRound5Games([])
+      setNumberOfRounds(rounds)
+      setNumberOfGroups(groups)
+    }
   }
 
   const handleUpdateScore = (id: string, score: string, round?: number) => {
@@ -53,8 +102,8 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       winner = home > away ? 'home' : 'away'
     }
 
-    const copyGames = round === 4 ? [...round4Games] : [...games]
-    const updateGames = round === 4 ? setRound4Games : setGames
+    const copyGames = round === 4 ? [...round4Games] : round === 5 ? [...round5Games] : [...games]
+    const updateGames = round === 4 ? setRound4Games : round === 5 ? setRound5Games : setGames
 
     copyGames.map(game => {
       if (game.id === id) {
@@ -178,16 +227,17 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     }]
   }
 
-  const getGamesPerRound = (round: number) => games.filter((game) => game.round === round)
+  const gamesPerRound = (round: number) => games.filter((game) => game.round === round)
 
   return (
     <GamesContext.Provider
       value={{
         games,
-        gamesPerRound: (r: number) => getGamesPerRound(r),
+        gamesPerRound,
         teams,
         numberOfRounds,
         numberOfGroups,
+        handleResetGames,
         handleSetTeams,
         handleUpdateScore,
         generateRound4,
