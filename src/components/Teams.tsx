@@ -45,7 +45,6 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
         })
 
         return teamError ? { teams: teamError } : {}
-
       }}
     >
       {({ values, touched, setFieldValue, handleReset }) => (
@@ -53,31 +52,27 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
           <FormikPersist name="formState" />
 
           <div
-            className="flex flex-column md:flex-row gap-3 align-items-start md:align-items-end justify-content-between"
+            className="flex flex-column md:flex-row gap-3 align-items-start justify-content-between"
           >
             <div>
-              <label htmlFor="numberOfTeams" className="font-bold block mb-2">Number of teams</label>
+              <label htmlFor="numberOfTeams" className="font-bold block mb-1">Number of teams</label>
 
               <InputNumber
                 disabled={disabled}
                 id="numberOfTeams"
                 value={values.numberOfTeams}
                 onValueChange={(e) => {
-                  setFieldValue('numberOfTeams', e.value)
                   const oldTeams = values.teams
-                  if (e.value! > values.numberOfTeams) {
-                    setFieldValue('teams', [...oldTeams, '', '', '', ''])
-                    setFieldValue('numberOfGroups', (oldTeams.length + 4) / 4)
-                    setFieldValue('numberOfGames', (oldTeams.length + 4) === 4 ? 3 : 5 )
-                  }
-                  else {
-                    setFieldValue('teams', [...oldTeams.slice(0, e.value!)])
-                    setFieldValue('numberOfGroups', (oldTeams.length - 4) / 4)
-                    setFieldValue('numberOfGames', (oldTeams.length - 4) === 4 ? 3 : 5 )
-                  }
+                  if (e.value! > values.numberOfTeams) setFieldValue('teams', [...oldTeams, '', '', '', ''])
+                  else setFieldValue('teams', [...oldTeams.slice(0, e.value!)])
+
+
+                  setFieldValue('numberOfTeams', e.value)
+                  setFieldValue('numberOfGames', e.value === 4 ? 3 : 5)
+                  setFieldValue('numberOfGroups', e.value! / 4)
                 }}
                 buttonLayout="horizontal"
-                className="p-inputtext-sm w-full"
+                className="p-inputtext-sm w-full mt-1"
                 decrementButtonClassName="p-button-danger"
                 decrementButtonIcon="pi pi-minus"
                 incrementButtonClassName="p-button-success"
@@ -87,6 +82,8 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                 showButtons
                 step={4}
               />
+
+              <small className="block mt-2">Min: 4 - Max: 16</small>
             </div>
 
             <div>
@@ -118,17 +115,17 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
             </div>
           </div>
 
-          <label htmlFor="numberOfTeams" className="font-bold block mb-2 mt-4">
-            Teams
-          </label>
+          <p className="font-bold mb-2 mt-4 text-lg">Teams</p>
 
           <FieldArray
             name="teams"
             render={() => (
-              <>
+              <div>
                 {values.teams.map((team, index) => (
                   <div key={index}>
-                    {index % 4 === 0 && <p className="font-bold">{`Group ${letters[index / 4]}`}</p>}
+                    {index % 4 === 0 &&
+                      <label className="font-bold block mb-1 mt-2">{`Group ${letters[index / 4]}`}</label>
+                    }
 
                     <div className="flex gap-3 align-items-center justify-content-between" key={index}>
                       <p className="font-bold">{`#${index + 1}`}</p>
@@ -140,14 +137,14 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                         name={team}
                         value={team}
                         onChange={(e) => setFieldValue(`teams.${index}`, e.target.value)}
+                        placeholder="Ex: Filipe / Joāo"
                       />
-
                     </div>
 
                     <InputError field={`teams.${index}`} touched={touched} value={team} />
                   </div>
                 ))}
-              </>
+              </div>
             )}
           />
 

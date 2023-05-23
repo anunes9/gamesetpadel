@@ -55,7 +55,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     }
   const [games, setGames] = useState(initialData.games as unknown as Game[])
   const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[])
-  const [round5Games, setRound5Games] = useState(initialData.round4Games as unknown as Game[])
+  const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[])
   const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
   const [numberOfRounds, setNumberOfRounds] = useState(initialData.numberOfRounds)
   const [numberOfGroups, setNumberOfGroups] = useState(initialData.numberOfGroups)
@@ -115,7 +115,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     })
 
     updateGames(copyGames)
-    calculatePoints()
+    if (!round) calculatePoints()
   }
 
   const calculatePoints = () => {
@@ -154,30 +154,28 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
   const generateRound4 = () => {
     let copyGames = [] as unknown as Game[]
+    const newTeams = teams.sort(sortTeams)
 
-    if (numberOfGroups === 2) {
-      const groupA = teams.filter(team => team.group === 'A').sort(sortTeams)
-      const groupB = teams.filter(team => team.group === 'B').sort(sortTeams)
+    if (numberOfGroups >= 2) {
+      const groupA = newTeams.slice(0, 4)
+      copyGames = addGame(copyGames, groupA[0], groupA[1], 4, 'A')
+      copyGames = addGame(copyGames, groupA[2], groupA[3], 4, 'A')
 
-      // 1st A - 2nd B
-      const a1 = groupA[0]
-      const b2 = groupB[1]
-      copyGames = addGame(copyGames, a1, b2, 4, 'Top')
+      const groupB = newTeams.slice(4, 8)
+      copyGames = addGame(copyGames, groupB[0], groupB[1], 4, 'B')
+      copyGames = addGame(copyGames, groupB[2], groupB[3], 4, 'B')
+    }
 
-      // 1st B - 2nd A
-      const a2 = groupA[1]
-      const b1 = groupB[0]
-      copyGames = addGame(copyGames, a2, b1, 4, 'Top')
+    if (numberOfGroups >= 3) {
+      const groupC = newTeams.slice(8, 12)
+      copyGames = addGame(copyGames, groupC[0], groupC[1], 4, 'C')
+      copyGames = addGame(copyGames, groupC[2], groupC[3], 4, 'C')
+    }
 
-      // 3rd A - 4th B
-      const a3 = groupA[2]
-      const b4 = groupB[3]
-      copyGames = addGame(copyGames, a3, b4, 4, 'Bottom')
-
-      // 3rd B - 4th A
-      const a4 = groupA[3]
-      const b3 = groupB[2]
-      copyGames = addGame(copyGames, a4, b3, 4, 'Bottom')
+    if (numberOfGroups === 4) {
+      const groupD = newTeams.slice(12, 16)
+      copyGames = addGame(copyGames, groupD[0], groupD[1], 4, 'D')
+      copyGames = addGame(copyGames, groupD[2], groupD[3], 4, 'D')
     }
 
     setRound4Games(copyGames)
@@ -190,25 +188,32 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const getWinner = (game: Game) => game.winner === 'home' ? game.homeTeam : game.awayTeam
     const getLoser = (game: Game) => game.winner === 'home' ? game.awayTeam : game.homeTeam
 
-    if (numberOfGroups === 2) {
-      const topGroup = round4Games.filter(team => team.group === 'Top')
-      const bottomGroup = round4Games.filter(team => team.group === 'Bottom')
+    const getGames = (games: Game[], group: string) => {
+      const winner1 = getWinner(games[0])
+      const winner2 = getWinner(games[1])
+      const loser1 = getLoser(games[0])
+      const loser2 = getLoser(games[1])
 
-      const winnerTop1 = getWinner(topGroup[0])
-      const winnerTop2 = getWinner(topGroup[1])
-      const loserTop1 = getLoser(topGroup[0])
-      const loserTop2 = getLoser(topGroup[1])
+      copyGames = addGame(copyGames, winner1, winner2, 5, group)
+      copyGames = addGame(copyGames, loser1, loser2, 5, group)
+    }
 
-      copyGames = addGame(copyGames, winnerTop1, winnerTop2, 5, 'Top')
-      copyGames = addGame(copyGames, loserTop1, loserTop2, 5, 'Top')
+    if (numberOfGroups >= 2) {
+      const groupA = round4Games.filter(team => team.group === 'A')
+      const groupB = round4Games.filter(team => team.group === 'B')
 
-      const winnerBottom1 = getWinner(bottomGroup[0])
-      const winnerBottom2 = getWinner(bottomGroup[1])
-      const loserBottom1 = getLoser(bottomGroup[0])
-      const loserBottom2 = getLoser(bottomGroup[1])
+      getGames(groupA, 'A')
+      getGames(groupB, 'B')
+    }
 
-      copyGames = addGame(copyGames, winnerBottom1, winnerBottom2, 5, 'Bottom')
-      copyGames = addGame(copyGames, loserBottom1, loserBottom2, 5, 'Bottom')
+    if (numberOfGroups >= 3) {
+      const groupC = round4Games.filter(team => team.group === 'C')
+      getGames(groupC, 'C')
+    }
+
+    if (numberOfGroups == 4) {
+      const groupD = round4Games.filter(team => team.group === 'D')
+      getGames(groupD, 'D')
     }
 
     setRound5Games(copyGames)

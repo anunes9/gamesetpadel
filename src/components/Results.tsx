@@ -47,9 +47,9 @@ export const ResultsComponent = () => {
             <p className="font-bold m-0 ml-3 mb-3 pt-3">Semi-Finals</p>
 
             <DataTable className="mb-3" value={round4Games} stripedRows>
-              <Column field="group" header="Group"></Column>
-              <Column body={labelTemplate} header="Game"></Column>
-              <Column field="score" header="Score"></Column>
+              <Column field="group" header="Group" />
+              <Column body={labelTemplate} header="Game" />
+              <Column field="score" header="Score" />
             </DataTable>
           </Card>
 
@@ -57,9 +57,9 @@ export const ResultsComponent = () => {
             <p className="font-bold m-0 ml-3 mb-3 pt-3">Finals</p>
 
             <DataTable className="mb-3" value={round5Games} stripedRows>
-              <Column field="group" header="Group"></Column>
-              <Column body={labelTemplate} header="Game"></Column>
-              <Column field="score" header="Score"></Column>
+              <Column field="group" header="Group" />
+              <Column body={labelTemplate} header="Game" />
+              <Column field="score" header="Score" />
             </DataTable>
           </Card>
         </>

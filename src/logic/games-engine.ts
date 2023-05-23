@@ -33,11 +33,12 @@ export class GamesEngine {
     if (teams.length % 2) throw new Error("Teams length must be even")
 
     if (groups === 1) {
-      const gameTeams = teams.map((t) => this.createTeam(t, 'A'))
-      this.teams = this.shuffle(gameTeams)
-      this.generateGames(this.teams, 'A')
+      const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
+      this.generateGames(this.shuffle(groupA), 'A')
+
+      this.teams = groupA
     }
-    else if (groups === 2) {
+    else if (groups >= 2) {
       const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
       this.generateGames(this.shuffle(groupA), 'A')
 
@@ -46,7 +47,7 @@ export class GamesEngine {
 
       this.teams = [...groupA, ...groupB]
     }
-    else if (groups === 3) {
+    else if (groups >= 3) {
       const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
       this.generateGames(this.shuffle(groupA), 'A')
 
@@ -57,6 +58,21 @@ export class GamesEngine {
       this.generateGames(this.shuffle(groupC), 'C')
 
       this.teams = [...groupA, ...groupB, ...groupC]
+    }
+    else if (groups === 4) {
+      const groupA = teams.slice(0, 4).map((t) => this.createTeam(t, 'A'))
+      this.generateGames(this.shuffle(groupA), 'A')
+
+      const groupB = teams.slice(4, 8).map((t) => this.createTeam(t, 'B'))
+      this.generateGames(this.shuffle(groupB), 'B')
+
+      const groupC = teams.slice(8, 12).map((t) => this.createTeam(t, 'C'))
+      this.generateGames(this.shuffle(groupC), 'C')
+
+      const groupD = teams.slice(12, 16).map((t) => this.createTeam(t, 'D'))
+      this.generateGames(this.shuffle(groupD), 'D')
+
+      this.teams = [...groupA, ...groupB, ...groupC, ...groupD]
     }
   }
 

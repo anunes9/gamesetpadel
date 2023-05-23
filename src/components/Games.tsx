@@ -90,20 +90,31 @@ const GameForm = ({ game, handleSubmit }: GameFormType ) => (
   <Formik
     initialValues={{ score: game.score || '' }}
     onSubmit={(values) => handleSubmit(values.score)}
+    validate={(values) => {
+      if (values.score.length === 3) {
+        const [a, b] = values.score.split('-')
+
+        if (a === b) return { score: 'Score is wrong' }
+        return {}
+      }
+
+      return { score: 'Score cannot be empty' }
+    }}
   >
-    {({ values, setFieldValue }) => (
+    {({ values, touched, errors, setFieldValue }) => (
       <Form>
-        <div className="flex flex-column align-items-center mb-3">
+        <div className="flex flex-column md:flex-row align-items-center justify-content-center mb-3">
           <p className="font-bold m-0">{game.homeTeam.name}</p>
           <p className="m-2">vs</p>
           <p className="font-bold m-0">{game.awayTeam.name}</p>
         </div>
 
         <div className="flex align-items-center justify-content-between mb-6">
-          <span className="p-input-icon-left">
-            <i className="material-symbols-outlined" style={{ marginTop: '-0.8rem'}}>sports_baseball</i>
+          <div className="flex flex-column">
+            <span className="p-input-icon-left">
+              <i className="material-symbols-outlined" style={{ marginTop: '-0.8rem'}}>sports_baseball</i>
 
-            {/* <InputText
+              {/* <InputText
               style={{ paddingLeft: '4rem'}}
               className="w-8rem"
               placeholder="Result"
@@ -111,14 +122,17 @@ const GameForm = ({ game, handleSubmit }: GameFormType ) => (
               onChange={(e) => setFieldValue('score', e.target.value!)}
             /> */}
 
-            <InputMask
-              style={{ paddingLeft: '4rem'}}
-              className="w-8rem"
-              value={values.score}
-              onChange={(e) => setFieldValue('score', e.target.value!)}
-              mask="9-9"
-            />
-          </span>
+              <InputMask
+                style={{ paddingLeft: '4rem'}}
+                className="w-8rem"
+                value={values.score}
+                onChange={(e) => setFieldValue('score', e.target.value!)}
+                mask="9-9"
+              />
+
+            </span>
+            {!!(touched['score'] && errors['score']) && <small className="p-error">{errors['score']}</small>}
+          </div>
 
           <Button
             style={{ padding: '0.6rem'}}
