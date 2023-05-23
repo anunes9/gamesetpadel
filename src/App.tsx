@@ -43,7 +43,7 @@ const App = () => {
         </TabPanel>
       </TabView>
 
-      <Toast ref={toast} position="top-center" />
+      <Toast ref={toast} position="bottom-right" />
     </>
   )
 }

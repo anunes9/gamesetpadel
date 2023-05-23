@@ -1,14 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import 'primeflex/primeflex.css' // flex
-import 'primeicons/primeicons.css' //icons
-import 'primereact/resources/primereact.min.css' //core css
-import 'primereact/resources/themes/lara-light-indigo/theme.css' //theme
 import { Game, GamesEngine, Team } from '../logic/games-engine'
 import { createContext, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import isEqual from 'react-fast-compare'
 
-export const letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M"]
+export const letters = ["A","B","C","D"]
 
 // sort teams by win games and by diff of points
 export const sortTeams = (a: Team, b: Team) => b.points - a.points || b.diff - a.diff

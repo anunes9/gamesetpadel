@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import { FieldArray, Form, Formik, FormikTouched, getIn } from 'formik'
 import { useContext } from 'react'
-import { GamesContext, letters } from '../context/GameContext'
+import { GamesContext } from '../context/GameContext'
 import { FormikPersist } from './FormikPersist'
 import './Teams.css'
 
@@ -123,9 +123,10 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
               <div>
                 {values.teams.map((team, index) => (
                   <div key={index}>
-                    {index % 4 === 0 &&
+                    {/* group label */}
+                    {/* {index % 4 === 0 &&
                       <label className="font-bold block mb-1 mt-2">{`Group ${letters[index / 4]}`}</label>
-                    }
+                    } */}
 
                     <div className="flex gap-3 align-items-center justify-content-between" key={index}>
                       <p className="font-bold">{`#${index + 1}`}</p>
