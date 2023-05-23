@@ -120,15 +120,15 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
   const calculatePoints = () => {
     // resets team points
-    const copyTeams = [...teams.map(team => ({ ...team, points: 0 }))]
+    const copyTeams = [...teams.map(team => ({ ...team, points: 0, diff: 0 }))]
 
     games.map(game => {
       // get winner team id
-      let winner = ''
-      let loser = ''
+      let winner = null  as unknown as Team
+      let loser = null as unknown as Team
       if (game.winner) {
-        winner = game.winner === 'home' ? game.homeTeam.id : game.awayTeam.id
-        loser = game.winner === 'home' ? game.awayTeam.id : game.homeTeam.id
+        winner = getWinner(game)
+        loser = getLoser(game)
       }
 
       // get game points diff
@@ -139,11 +139,11 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       }
 
       copyTeams.map(team => {
-        if (team.id === winner) {
+        if (team.id === winner?.id) {
           team.points += 3
           team.diff += diff
         }
-        else if (team.id === loser) team.diff -= diff
+        else if (team.id === loser?.id) team.diff -= diff
 
         return team
       })
@@ -184,9 +184,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
   const generateRound5 = () => {
     let copyGames = [] as unknown as Game[]
-
-    const getWinner = (game: Game) => game.winner === 'home' ? game.homeTeam : game.awayTeam
-    const getLoser = (game: Game) => game.winner === 'home' ? game.awayTeam : game.homeTeam
 
     const getGames = (games: Game[], group: string) => {
       const winner1 = getWinner(games[0])
@@ -233,6 +230,10 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
   }
 
   const gamesPerRound = (round: number) => games.filter((game) => game.round === round)
+
+  const getWinner = (game: Game) => game.winner === 'home' ? game.homeTeam : game.awayTeam
+
+  const getLoser = (game: Game) => game.winner === 'home' ? game.awayTeam : game.homeTeam
 
   return (
     <GamesContext.Provider
