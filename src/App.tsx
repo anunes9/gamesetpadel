@@ -8,6 +8,8 @@ import { ResultsComponent } from "./components/Results"
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Toast } from 'primereact/toast'
 import { useRef, useState } from "react"
+import { Footer } from "./template/Footer"
+import { Header } from "./template/Header"
 
 const App = () => {
   const toast = useRef<Toast>(null)
@@ -16,34 +18,36 @@ const App = () => {
 
   return (
     <>
-      {/* <Image src="/banner.png" alt="banner" width={`${width}`} /> */}
-      <p className="font-bold text-4xl m-0 mt-1 text-center">Padel Games</p>
-      <p className="text-lg m-0 mt-1 text-center">Tournament Generator</p>
+      <Header />
 
-      <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
-        <TabPanel header="Teams" leftIcon="pi pi-user mr-2">
-          <TeamsComponent
-            handleSuccess={(detail: string) => {
-              toast.current?.show({ severity: 'success', summary: 'Success', detail})
-              setActiveIndex(1)
-            }}
-          />
-        </TabPanel>
+      <section>
+        <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
+          <TabPanel header="Teams" leftIcon="pi pi-user mr-2">
+            <TeamsComponent
+              handleSuccess={(detail: string) => {
+                toast.current?.show({ severity: 'success', summary: 'Success', detail})
+                setActiveIndex(1)
+              }}
+            />
+          </TabPanel>
 
-        <TabPanel header="Games" leftIcon="pi pi-calendar ml-2">
-          <GamesComponent
-            showToast={(detail: string) => {
-              toast.current?.show({ severity: 'success', summary: 'Success', detail})
-            }}
-          />
-        </TabPanel>
+          <TabPanel header="Games" leftIcon="pi pi-calendar ml-2">
+            <GamesComponent
+              showToast={(detail: string) => {
+                toast.current?.show({ severity: 'success', summary: 'Success', detail})
+              }}
+            />
+          </TabPanel>
 
-        <TabPanel header="Results" leftIcon="pi pi-search mr-2">
-          <ResultsComponent />
-        </TabPanel>
-      </TabView>
+          <TabPanel header="Results" leftIcon="pi pi-search mr-2">
+            <ResultsComponent />
+          </TabPanel>
+        </TabView>
 
-      <Toast ref={toast} position="bottom-right" />
+        <Toast ref={toast} position="bottom-right" />
+      </section>
+
+      <Footer />
     </>
   )
 }
