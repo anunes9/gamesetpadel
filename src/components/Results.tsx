@@ -4,8 +4,10 @@ import { Card } from 'primereact/card'
 import { useContext } from 'react'
 import { GamesContext, letters, sortTeams } from '../context/GameContext'
 import { Game } from '../logic/games-engine'
+import { useTranslation } from 'react-i18next'
 
 export const ResultsComponent = () => {
+  const { t } = useTranslation()
   const { teams, numberOfGroups, round4Games, round5Games } = useContext(GamesContext)
 
   const cardStyle = {
@@ -13,7 +15,7 @@ export const ResultsComponent = () => {
     content: { className: 'p-0' }
   }
 
-  if (teams.length === 0) return <p className="font-bold">Set teams first to generate the results</p>
+  if (teams.length === 0) return <p className="font-bold">{t('games.result-empty')}</p>
 
   const labelTemplate = (game: Game) => (
     <div className="flex flex-column">
@@ -27,16 +29,16 @@ export const ResultsComponent = () => {
     <div className="flex-1">
       {[...Array(numberOfGroups).keys()].map(i => (
         <Card key={i} pt={cardStyle}>
-          <p className="font-bold m-0 ml-3 mb-3 pt-3">{`Group ${letters[i]}`}</p>
+          <p className="font-bold m-0 ml-3 mb-3 pt-3">{t('games.group-id', { letter: letters[i] })}</p>
 
           <DataTable
             className="mb-3"
             stripedRows
             value={teams.filter(team => team.group === letters[i]).sort(sortTeams)}
           >
-            <Column field="name" header="Name" />
-            <Column field="points" header="Points" />
-            <Column field="diff" header="Diff" />
+            <Column field="name" header={t('games.name')} />
+            <Column field="points" header={t('games.points')} />
+            <Column field="diff" header={t('games.diff')} />
           </DataTable>
         </Card>
       ))}
@@ -44,22 +46,26 @@ export const ResultsComponent = () => {
       {numberOfGroups > 1 && (
         <>
           <Card pt={cardStyle}>
-            <p className="font-bold m-0 ml-3 mb-3 pt-3">Semi-Finals</p>
+            <p className="font-bold m-0 ml-3 mb-3 pt-3">
+              {t('games.semi-finals')}
+            </p>
 
             <DataTable className="mb-3" value={round4Games} stripedRows>
-              <Column field="group" header="Group" />
-              <Column body={labelTemplate} header="Game" />
-              <Column field="score" header="Score" />
+              <Column field="group" header={t('games.group')} />
+              <Column body={labelTemplate} header={t('games.game')} />
+              <Column field="score" header={t('games.score')} />
             </DataTable>
           </Card>
 
           <Card pt={cardStyle}>
-            <p className="font-bold m-0 ml-3 mb-3 pt-3">Finals</p>
+            <p className="font-bold m-0 ml-3 mb-3 pt-3">
+              {t('games.finals')}
+            </p>
 
             <DataTable className="mb-3" value={round5Games} stripedRows>
-              <Column field="group" header="Group" />
-              <Column body={labelTemplate} header="Game" />
-              <Column field="score" header="Score" />
+              <Column field="group" header={t('games.group')}/>
+              <Column body={labelTemplate} header={t('games.game')}/>
+              <Column field="score" header={t('games.score')}/>
             </DataTable>
           </Card>
         </>

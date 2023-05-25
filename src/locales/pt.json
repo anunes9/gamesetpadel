@@ -1,0 +1,42 @@
+{
+  "generic": {
+    "app-title": "GameSetPadel",
+    "app-description": "O seu melhor companheiro de torneios de padel. Simplifique os registos, gira torneios sem esforço e mantenha-se actualizado com horários, pontuações e classificações de jogadores em tempo real. Junte-se a uma comunidade vibrante de entusiastas do padel e melhore a sua experiência em torneios com a GameSetPadel."
+  },
+  "footer": {
+    "text": "© 2023 GameSetPadel. Todos os direitos reservados"
+  },
+  "games": {
+    "diff": "Diff",
+    "finals": "Finais",
+    "games-empty": "Definir as equipas primeiro para gerar os jogos.",
+    "game": "Jogo",
+    "games": "Jogos",
+    "generate-games": "Gerar jogos",
+    "group-id": "Grupo {{letter}}",
+    "group": "Grupo",
+    "name": "Nome",
+    "points": "Pontos",
+    "result-empty": "Definir as equipas primeiro para gerar os resultados.",
+    "results": "Resultados",
+    "results-saved": "Resultados dos jogos guardados!",
+    "round": "Ronda {{round}}",
+    "save-results": "Guardar resultados",
+    "score-empty-error": "A pontuação não pode estar vazia",
+    "score-wrong-error": "A pontuação está errada",
+    "score": "Pontuação",
+    "semi-finals": "Semi-Finais",
+    "vs": "vs"
+  },
+  "teams": {
+    "example": "Ex: Filipe / Tiago",
+    "number-of-games": "Número de jogos",
+    "number-of-groups": "Número de grupos",
+    "number-of-teams-description": "Min: 4 - Max: 16",
+    "number-of-teams": "Número de equipas",
+    "reset-teams": "Repor equipas",
+    "save-teams": "Guardar equipas",
+    "team-saved": "Equipa guardada",
+    "teams": "Equipas"
+  }
+}

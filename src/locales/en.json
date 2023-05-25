@@ -1,0 +1,42 @@
+{
+  "generic": {
+    "app-title": "GameSetPadel",
+    "app-description": "Your ultimate padel tournament companion. Streamline registrations, manage tournaments effortlessly, and stay updated with real-time schedules, scores, and player rankings. Join a vibrant community of padel enthusiasts and elevate your tournament experience with GameSetPadel."
+  },
+  "footer": {
+    "text": "© 2023 GameSetPadel. All rights reserved"
+  },
+  "games": {
+    "diff": "Diff",
+    "finals": "Finals",
+    "games-empty": "Set teams first to generate the games",
+    "game": "Game",
+    "games": "Games",
+    "generate-games": "Generate Games",
+    "group-id": "Group {{letter}}",
+    "group": "Group",
+    "name": "Name",
+    "points": "Points",
+    "result-empty": "Set teams first to generate the results",
+    "results": "Results",
+    "results-saved": "Game results saved!",
+    "round": "Round {{round}}",
+    "save-results": "Save results",
+    "score-empty-error": "Score cannot be empty",
+    "score-wrong-error": "Score is wrong",
+    "score": "Score",
+    "semi-finals": "Semi-Finals",
+    "vs": "vs"
+  },
+  "teams": {
+    "example": "Ex: Filipe / Tiago",
+    "number-of-games": "Number of games",
+    "number-of-groups": "Number of groups",
+    "number-of-teams-description": "Min: 4 - Max: 16",
+    "number-of-teams": "Number of teams",
+    "reset-teams": "Reset teams",
+    "save-teams": "Save teams",
+    "team-saved": "Team Saved",
+    "teams": "Teams"
+  }
+}

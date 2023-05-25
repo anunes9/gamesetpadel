@@ -6,6 +6,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  background-color: #FAFAFA;
 }
 
 body {
@@ -17,10 +18,10 @@ header {
   width: 100%;
   top: 0;
   height: 5rem;
-  background-color: #FAFAFA;
+  font-family: 'Permanent Marker', cursive;
 }
 
-section {
+section > .body-content {
   height: calc(100vh - 8rem);
   overflow-y: scroll;
   max-width: 760px;
@@ -30,7 +31,6 @@ section {
 footer {
   height: 3rem;
   position: relative;
-  background-color: #FAFAFA;
 }
 
 .content {

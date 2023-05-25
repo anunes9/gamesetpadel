@@ -6,6 +6,7 @@ import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { FormikPersist } from './FormikPersist'
 import './Teams.css'
+import { useTranslation } from 'react-i18next'
 
 type FormType = {
   numberOfTeams: number;
@@ -15,6 +16,8 @@ type FormType = {
 }
 
 export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: string) => void }) => {
+  const { t } = useTranslation()
+
   const { games, handleSetTeams, handleResetGames } = useContext(GamesContext)
   const disabled = games.length > 0
 
@@ -35,7 +38,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
       }}
       onSubmit={(values) => {
         handleSetTeams(values.teams, values.numberOfGames, values.numberOfGroups)
-        handleSuccess('Teams saved!')
+        handleSuccess(t('teams.team-saved'))
       }}
       validate={(values) => {
         let teamError = undefined
@@ -51,11 +54,11 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
         <Form>
           <FormikPersist name="formState" />
 
-          <div
-            className="flex flex-column md:flex-row gap-3 align-items-start justify-content-between"
-          >
+          <div className="flex flex-column md:flex-row gap-3 align-items-start justify-content-between">
             <div>
-              <label htmlFor="numberOfTeams" className="font-bold block mb-1">Number of teams</label>
+              <label htmlFor="numberOfTeams" className="font-bold block mb-1">
+                {t('teams.number-of-teams')}
+              </label>
 
               <InputNumber
                 disabled={disabled}
@@ -65,7 +68,6 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                   const oldTeams = values.teams
                   if (e.value! > values.numberOfTeams) setFieldValue('teams', [...oldTeams, '', '', '', ''])
                   else setFieldValue('teams', [...oldTeams.slice(0, e.value!)])
-
 
                   setFieldValue('numberOfTeams', e.value)
                   setFieldValue('numberOfGames', e.value === 4 ? 3 : 5)
@@ -80,29 +82,33 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                 min={4}
                 max={16}
                 showButtons
-                step={4}
+                step={4} // TODO: Update logic to handle 4 - 6 - 8 - 10 - 12 - 14 - 16 teams
               />
 
-              <small className="block mt-2">Min: 4 - Max: 16</small>
+              <small className="block mt-2">
+                {t('teams.number-of-teams-description')}
+              </small>
             </div>
 
             <div>
-              <label htmlFor="numberOfGames" className="font-bold block mb-2">Number of Games</label>
+              <label htmlFor="numberOfGames" className="font-bold block mb-2">
+                {t('teams.number-of-games')}
+              </label>
 
               <InputNumber
                 disabled
                 id="numberOfGames"
                 value={values.numberOfGames}
-                onValueChange={(e) => {
-                  setFieldValue('numberOfGames', e.value)
-                }}
+                onValueChange={(e) => setFieldValue('numberOfGames', e.value)}
                 className="p-inputtext-sm"
                 min={3}
               />
             </div>
 
             <div>
-              <label htmlFor="numberOfGroups" className="font-bold block mb-2">Number of Groups</label>
+              <label htmlFor="numberOfGroups" className="font-bold block mb-2">
+                {t('teams.number-of-groups')}
+              </label>
 
               <InputNumber
                 disabled
@@ -115,7 +121,9 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
             </div>
           </div>
 
-          <p className="font-bold mb-2 mt-4 text-lg">Teams</p>
+          <p className="font-bold mb-2 mt-4 text-lg">
+            {t('teams.teams')}
+          </p>
 
           <FieldArray
             name="teams"
@@ -138,7 +146,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                         name={team}
                         value={team}
                         onChange={(e) => setFieldValue(`teams.${index}`, e.target.value)}
-                        placeholder="Ex: Filipe / Joāo"
+                        placeholder={t('teams.example')!}
                       />
                     </div>
 
@@ -150,7 +158,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
           />
 
           <div className="flex flex-row justify-content-end gap-4 mt-4">
-            {!disabled && <Button type="submit" label="Save teams" />}
+            {!disabled && <Button type="submit" label={t('teams.save-teams')!} />}
 
             <Button
               type="button"
@@ -158,7 +166,7 @@ export const TeamsComponent = ({ handleSuccess }: { handleSuccess: (detail: stri
                 handleReset()
                 handleResetGames()
               }}
-              label="Reset teams"
+              label={t('teams.reset-teams')!}
               severity="danger"
             />
           </div>

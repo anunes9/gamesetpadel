@@ -1,0 +1,12 @@
+#language .p-dropdown-label {
+    padding: 0.4rem;
+}
+
+#language > .p-dropdown-trigger {
+    width: auto;
+    padding-right: 0.1rem;
+}
+
+.p-dropdown-item {
+    padding: 0.5rem !important;
+}
