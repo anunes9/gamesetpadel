@@ -1,4 +1,3 @@
-import { Game } from '../logic/games-engine'
 import { Button } from 'primereact/button'
 import { Panel } from 'primereact/panel'
 import { InputMask } from "primereact/inputmask"
@@ -6,6 +5,7 @@ import { FieldArray, Form, Formik, FormikTouched, getIn } from 'formik'
 import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { useTranslation } from 'react-i18next'
+import { Game } from '../logic/engine'
 
 interface GamesComponentType {
   showToast: (detail: string) => void

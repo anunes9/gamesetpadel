@@ -3,9 +3,8 @@ import { Column } from 'primereact/column'
 import { Card } from 'primereact/card'
 import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
-import { Game } from '../logic/games-engine'
 import { useTranslation } from 'react-i18next'
-import { letters, sortTeams } from '../logic/engine'
+import { Game, letters, sortTeams } from '../logic/engine'
 
 export const ResultsComponent = () => {
   const { t } = useTranslation()
