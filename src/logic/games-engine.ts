@@ -17,6 +17,7 @@ export type Game = {
   score?: string
   winner?: string
   group?: string
+  court?: number
 }
 
 export interface GamesEngineType {

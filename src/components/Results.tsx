@@ -2,9 +2,10 @@ import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { Card } from 'primereact/card'
 import { useContext } from 'react'
-import { GamesContext, letters, sortTeams } from '../context/GameContext'
+import { GamesContext } from '../context/GameContext'
 import { Game } from '../logic/games-engine'
 import { useTranslation } from 'react-i18next'
+import { letters, sortTeams } from '../logic/engine'
 
 export const ResultsComponent = () => {
   const { t } = useTranslation()

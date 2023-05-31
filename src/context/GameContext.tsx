@@ -1,33 +1,38 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Game, GamesEngine, Team } from '../logic/games-engine'
 import { createContext, useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import isEqual from 'react-fast-compare'
-
-export const letters = ["A","B","C","D"]
-
-// sort teams by win games and by diff of points
-export const sortTeams = (a: Team, b: Team) => b.points - a.points || b.diff - a.diff
+import {
+  Game,
+  GameSetPadelEngine,
+  Team,
+  calculateTeamPoints,
+  generateRound4Games,
+  generateRound5Games
+} from '../logic/engine'
 
 type SavedData  = {
-  games: Game[]
+  numberOfGroups: number
+  numberOfRounds: number
+  round1Games: Game[]
+  round2Games: Game[]
+  round3Games: Game[]
   round4Games: Game[]
   round5Games: Game[]
   teams: Team[]
-  numberOfRounds: number
-  numberOfGroups: number
 }
 
 interface GamesContextType {
-  games: Game[]
+  numberOfGroups: number
+  numberOfRounds: number
+  round1Games: Game[]
+  round2Games: Game[]
+  round3Games: Game[]
   round4Games: Game[]
   round5Games: Game[]
   teams: Team[]
-  numberOfRounds: number
-  numberOfGroups: number
-  gamesPerRound: (r: number) => Game[]
-  handleUpdateScore: (is: string, score: string, round?: number) => void
-  handleSetTeams: (teams: string[], rounds: number, groups: number) => void
+  // functions
+  handleUpdateScore: (is: string, score: string, round: number) => void
+  handleSetTeams: (teams: string[], rounds: number, groups: number, courts: number[]) => void
   generateRound4: () => void
   generateRound5: () => void
   handleResetGames: () => void
@@ -42,14 +47,18 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
   const initialData: SavedData = savedData
     ? JSON.parse(savedData)
     : {
-      games: [],
       teams: [],
+      round1Games: [],
+      round2Games: [],
+      round3Games: [],
       round4Games: [],
       round5Games: [],
       numberOfRounds: 3,
       numberOfGroups: 1,
     }
-  const [games, setGames] = useState(initialData.games as unknown as Game[])
+  const [round1Games, setRound1Games] = useState(initialData.round1Games as unknown as Game[])
+  const [round2Games, setRound2Games] = useState(initialData.round2Games as unknown as Game[])
+  const [round3Games, setRound3Games] = useState(initialData.round3Games as unknown as Game[])
   const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[])
   const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[])
   const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
@@ -58,194 +67,123 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const data = JSON.stringify({
-      games,
-      teams,
-      numberOfRounds,
       numberOfGroups,
+      numberOfRounds,
+      round1Games,
+      round2Games,
+      round3Games,
       round4Games,
-      round5Games
+      round5Games,
+      teams
     })
 
     if (!isEqual(savedData, data)) window.localStorage.setItem(localStorageKey, data)
-  }, [games, teams, numberOfRounds, numberOfGroups, round4Games, round5Games])
+  }, [
+    numberOfGroups,
+    numberOfRounds,
+    round1Games,
+    round2Games,
+    round3Games,
+    round4Games,
+    round5Games,
+    teams
+  ])
 
   const handleResetGames = () => {
     window.localStorage.removeItem(localStorageKey)
-    setGames([])
+    setNumberOfGroups(1)
+    setNumberOfRounds(3)
+    setRound1Games([])
+    setRound2Games([])
+    setRound3Games([])
     setRound4Games([])
     setRound5Games([])
     setTeams([])
-    setNumberOfRounds(3)
-    setNumberOfGroups(1)
   }
 
-  const handleSetTeams = (newTeams: string[], rounds: number, groups: number) => {
+  const handleSetTeams = (newTeams: string[], rounds: number, groups: number, courts: number[]) => {
     if (JSON.stringify(newTeams) !== JSON.stringify(teams)) {
-      const engine = new GamesEngine(newTeams, groups)
-      setGames(engine.games as unknown as Game[])
-      setTeams(engine.teams as unknown as Team[])
-      setRound4Games([])
-      setRound5Games([])
-      setNumberOfRounds(rounds)
+      const engine = GameSetPadelEngine(newTeams, courts)
+
       setNumberOfGroups(groups)
+      setNumberOfRounds(rounds)
+
+      setRound1Games(engine.games.filter(g => g.round === 1))
+      setRound2Games(engine.games.filter(g => g.round === 2))
+      setRound3Games(engine.games.filter(g => g.round === 3))
+      // if teams === 6 when get the games for round 4 and 5
+      setRound4Games(newTeams.length === 6 ? engine.games.filter(g => g.round === 4) : [])
+      setRound5Games(newTeams.length === 6 ? engine.games.filter(g => g.round === 5) : [])
+
+      setTeams(engine.teams as unknown as Team[])
     }
   }
 
-  const handleUpdateScore = (id: string, score: string, round?: number) => {
+  const handleUpdateScore = (gameId: string, score: string, round: number) => {
+    let copyGames = undefined
+    let updateGames = undefined
     let winner = undefined as unknown as string
+
     if (score) {
       const [home, away] = score.split('-')
       winner = home > away ? 'home' : 'away'
-    }
 
-    const copyGames = round === 4 ? [...round4Games] : round === 5 ? [...round5Games] : [...games]
-    const updateGames = round === 4 ? setRound4Games : round === 5 ? setRound5Games : setGames
-
-    copyGames.map(game => {
-      if (game.id === id) {
-        game.score = score
-        game.winner = winner
+      switch (round) {
+        case 2:
+          copyGames = [...round2Games]
+          updateGames = setRound2Games
+          break
+        case 3:
+          copyGames = [...round3Games]
+          updateGames = setRound3Games
+          break
+        case 4:
+          copyGames = [...round4Games]
+          updateGames = setRound4Games
+          break
+        case 5:
+          copyGames = [...round5Games]
+          updateGames = setRound5Games
+          break
+          // round 1
+        default:
+          copyGames = [...round1Games]
+          updateGames = setRound1Games
       }
 
-      return game
-    })
+      copyGames.find(g => g.id === gameId)!.score = score
+      copyGames.find(g => g.id === gameId)!.winner = winner
 
-    updateGames(copyGames)
-    if (!round) calculatePoints()
+      updateGames(copyGames)
+      if (teams.length === 6 || round < 4) calculatePoints()
+    }
   }
 
   const calculatePoints = () => {
-    // resets team points
-    const copyTeams = [...teams.map(team => ({ ...team, points: 0, diff: 0 }))]
+    const games = teams.length === 6
+      ? [...round1Games, ...round2Games, ...round3Games, ...round4Games, ...round5Games]
+      : [...round1Games, ...round2Games, ...round3Games]
 
-    games.map(game => {
-      // get winner team id
-      let winner = null  as unknown as Team
-      let loser = null as unknown as Team
-      if (game.winner) {
-        winner = getWinner(game)
-        loser = getLoser(game)
-      }
-
-      // get game points diff
-      let diff = 0
-      if (game.score) {
-        const [home, away] = game.score.split('-')
-        diff = Math.abs(parseInt(home) - parseInt(away))
-      }
-
-      copyTeams.map(team => {
-        if (team.id === winner?.id) {
-          team.points += 3
-          team.diff += diff
-        }
-        else if (team.id === loser?.id) team.diff -= diff
-
-        return team
-      })
-    })
-
-    setTeams(copyTeams)
+    setTeams(calculateTeamPoints(teams, games))
   }
-
-  const generateRound4 = () => {
-    let copyGames = [] as unknown as Game[]
-    const newTeams = teams.sort(sortTeams)
-
-    if (numberOfGroups >= 2) {
-      const groupA = newTeams.slice(0, 4)
-      copyGames = addGame(copyGames, groupA[0], groupA[1], 4, 'A')
-      copyGames = addGame(copyGames, groupA[2], groupA[3], 4, 'A')
-
-      const groupB = newTeams.slice(4, 8)
-      copyGames = addGame(copyGames, groupB[0], groupB[1], 4, 'B')
-      copyGames = addGame(copyGames, groupB[2], groupB[3], 4, 'B')
-    }
-
-    if (numberOfGroups >= 3) {
-      const groupC = newTeams.slice(8, 12)
-      copyGames = addGame(copyGames, groupC[0], groupC[1], 4, 'C')
-      copyGames = addGame(copyGames, groupC[2], groupC[3], 4, 'C')
-    }
-
-    if (numberOfGroups === 4) {
-      const groupD = newTeams.slice(12, 16)
-      copyGames = addGame(copyGames, groupD[0], groupD[1], 4, 'D')
-      copyGames = addGame(copyGames, groupD[2], groupD[3], 4, 'D')
-    }
-
-    setRound4Games(copyGames)
-    // setGames([...games, ...copyGames])
-  }
-
-  const generateRound5 = () => {
-    let copyGames = [] as unknown as Game[]
-
-    const getGames = (games: Game[], group: string) => {
-      const winner1 = getWinner(games[0])
-      const winner2 = getWinner(games[1])
-      const loser1 = getLoser(games[0])
-      const loser2 = getLoser(games[1])
-
-      copyGames = addGame(copyGames, winner1, winner2, 5, group)
-      copyGames = addGame(copyGames, loser1, loser2, 5, group)
-    }
-
-    if (numberOfGroups >= 2) {
-      const groupA = round4Games.filter(team => team.group === 'A')
-      const groupB = round4Games.filter(team => team.group === 'B')
-
-      getGames(groupA, 'A')
-      getGames(groupB, 'B')
-    }
-
-    if (numberOfGroups >= 3) {
-      const groupC = round4Games.filter(team => team.group === 'C')
-      getGames(groupC, 'C')
-    }
-
-    if (numberOfGroups == 4) {
-      const groupD = round4Games.filter(team => team.group === 'D')
-      getGames(groupD, 'D')
-    }
-
-    setRound5Games(copyGames)
-  }
-
-  const addGame = (games: Game[], homeTeam: Team, awayTeam: Team, round: number, group: string) => {
-    return [...games, {
-      id: uuidv4(),
-      score: '',
-      winner: undefined,
-      label: `${homeTeam.name} vs ${awayTeam.name}`,
-      homeTeam,
-      awayTeam,
-      round,
-      group
-    }]
-  }
-
-  const gamesPerRound = (round: number) => games.filter((game) => game.round === round)
-
-  const getWinner = (game: Game) => game.winner === 'home' ? game.homeTeam : game.awayTeam
-
-  const getLoser = (game: Game) => game.winner === 'home' ? game.awayTeam : game.homeTeam
 
   return (
     <GamesContext.Provider
       value={{
-        games,
-        gamesPerRound,
-        teams,
-        numberOfRounds,
         numberOfGroups,
+        numberOfRounds,
+        round1Games,
+        round2Games,
+        round3Games,
+        round4Games,
+        round5Games,
+        teams,
+
         handleResetGames,
         handleSetTeams,
         handleUpdateScore,
-        generateRound4,
-        generateRound5,
-        round4Games,
-        round5Games
+        generateRound4: () => generateRound4Games(teams, numberOfGroups),
+        generateRound5: () => generateRound5Games(round4Games, numberOfGroups),
       }}
     >
       {children}

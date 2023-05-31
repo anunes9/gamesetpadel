@@ -7,6 +7,7 @@
     "text": "© 2023 GameSetPadel. All rights reserved"
   },
   "games": {
+    "court-id": "Court {{number}}",
     "diff": "Diff",
     "finals": "Finals",
     "games-empty": "Set teams first to generate the games",
@@ -16,6 +17,7 @@
     "group-id": "Group {{letter}}",
     "group": "Group",
     "name": "Name",
+    "optimal-error": "The games generated might not be optimal for this number of teams",
     "points": "Points",
     "result-empty": "Set teams first to generate the results",
     "results": "Results",
@@ -29,6 +31,9 @@
     "vs": "vs"
   },
   "teams": {
+    "courts": "Court Numbers",
+    "courts-example": "Ex: 1",
+    "empty-error": "Team cannot be empty",
     "example": "Ex: Filipe / Tiago",
     "number-of-games": "Number of games",
     "number-of-groups": "Number of groups",

@@ -9,3 +9,12 @@
 #numberOfGroups .p-inputtext {
     max-width: 6rem;
 }
+
+.court-field {
+    width: 50% !important;
+    margin-bottom: 0 !important;
+}
+
+.court-field > .p-inputnumber-input {
+    width: 100% !important;
+}

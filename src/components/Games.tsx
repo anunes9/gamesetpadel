@@ -7,37 +7,47 @@ import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { useTranslation } from 'react-i18next'
 
-export const GamesComponent = ({ showToast }: { showToast: (detail: string) => void}) => {
+interface GamesComponentType {
+  showToast: (detail: string) => void
+}
+
+export const GamesComponent = ({ showToast }: GamesComponentType) => {
   const { t } = useTranslation()
   const {
-    games,
-    gamesPerRound,
+    teams,
     generateRound4,
     generateRound5,
     handleUpdateScore,
     numberOfGroups,
+    round1Games,
+    round2Games,
+    round3Games,
     round4Games,
     round5Games
   } = useContext(GamesContext)
 
-  const updateScore = (games: Game[], round?: number) => {
+  const roundGames = teams.length === 6
+    ? [round1Games, round2Games, round3Games, round4Games, round5Games]
+    : [round1Games, round2Games, round3Games]
+
+  const updateScore = (games: Game[], round: number) => {
     games.forEach(game => handleUpdateScore(game.id, game.score || '', round))
     showToast(t('games.results-saved'))
   }
 
-  if (games.length === 0) return <p className="font-bold">{t('games.games-empty')}</p>
+  if (round1Games.length === 0) return <p className="font-bold">{t('games.games-empty')}</p>
 
   return (
     <div className="flex-1">
-      {[...Array(3).keys()].map(r => (
+      {roundGames.map((games, i) => (
         <Panel
-          key={r}
+          key={i}
           className="mb-2"
-          header={t('games.round', {round: r+1})}
+          header={t('games.round', {round: i+1})}
           toggleable
-          collapsed={r !== 0}
+          collapsed={i !== 0}
         >
-          <GameForm games={gamesPerRound(r+1)} handleSubmit={(games) => updateScore(games)} />
+          <GameForm games={games} handleSubmit={(games) => updateScore(games, i+1)} />
         </Panel>
       ))}
 
@@ -55,7 +65,7 @@ export const GamesComponent = ({ showToast }: { showToast: (detail: string) => v
             <Button className="mb-3" onClick={generateRound5} label={t('games.generate-games')!} />
 
             {round5Games.length !== 0 &&
-            <GameForm games={round5Games} handleSubmit={(games) => updateScore(games, 5)} />
+              <GameForm games={round5Games} handleSubmit={(games) => updateScore(games, 5)} />
             }
           </Panel>
         </>
@@ -111,9 +121,15 @@ const GameForm = ({ games, handleSubmit }: { games: Game[], handleSubmit: (games
               <div className="flex-1">
                 {values.games.map((game: Game, index: number) => (
                   <div key={index} className="surface-100 border-50 border-1 border-round-sm mb-2 p-2">
-                    <p className="font-bold m-0 mb-1">
-                      {t('games.group-id', { letter: game.group })}
-                    </p>
+                    <div className="flex justify-content-between">
+                      <p className="font-bold m-0 mb-1">
+                        {t('games.group-id', { letter: game.group })}
+                      </p>
+
+                      <p className="font-bold m-0 mb-1">
+                        {t('games.court-id', { number: game.court })}
+                      </p>
+                    </div>
 
                     <div className="flex flex-column md:flex-row align-items-center justify-content-center mb-2">
                       <p className="font-bold m-0">{game.homeTeam.name}</p>

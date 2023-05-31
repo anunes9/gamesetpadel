@@ -7,6 +7,7 @@ import { TeamsComponent } from "./components/Teams"
 import { ResultsComponent } from "./components/Results"
 import { TabView, TabPanel } from 'primereact/tabview'
 import { Toast } from 'primereact/toast'
+import { Messages } from 'primereact/messages'
 import { useRef, useState } from "react"
 import { Footer } from "./template/Footer"
 import { Header } from "./template/Header"
@@ -15,6 +16,7 @@ import { useTranslation } from "react-i18next"
 const App = () => {
   const { t } = useTranslation()
   const toast = useRef<Toast>(null)
+  const messages = useRef<Messages>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
   return (
@@ -23,12 +25,23 @@ const App = () => {
 
       <section>
         <div className="body-content">
+          <Messages ref={messages} />
+
           <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
+
             <TabPanel header={t('teams.teams')} leftIcon="pi pi-user mr-2">
               <TeamsComponent
                 handleSuccess={(detail: string) => {
                   toast.current?.show({ severity: 'success', summary: 'Success', detail})
                   setActiveIndex(1)
+                }}
+                handleInfoMessage={() => {
+                  messages.current?.show([{
+                    sticky: true,
+                    severity: 'info',
+                    detail: t('games.optimal-error'),
+                    closable: false
+                  }])
                 }}
               />
             </TabPanel>
