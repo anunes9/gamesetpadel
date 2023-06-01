@@ -34,7 +34,7 @@ interface TeamsComponentProps {
 export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsComponentProps) => {
   const { t } = useTranslation()
   const { round1Games, handleSetTeams, handleResetGames } = useContext(GamesContext)
-  const disabled = round1Games.length > 0
+  const disabled = round1Games?.length > 0
   const msgs = useRef(null)
 
   const InputError = (

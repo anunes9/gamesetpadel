@@ -56,9 +56,9 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       numberOfRounds: 3,
       numberOfGroups: 1,
     }
-  const [round1Games, setRound1Games] = useState(initialData.round1Games as unknown as Game[])
-  const [round2Games, setRound2Games] = useState(initialData.round2Games as unknown as Game[])
-  const [round3Games, setRound3Games] = useState(initialData.round3Games as unknown as Game[])
+  const [round1Games, setRound1Games] = useState(initialData.round1Games as unknown as Game[] || [])
+  const [round2Games, setRound2Games] = useState(initialData.round2Games as unknown as Game[] || [])
+  const [round3Games, setRound3Games] = useState(initialData.round3Games as unknown as Game[] || [])
   const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[])
   const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[])
   const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
