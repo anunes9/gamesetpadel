@@ -29,7 +29,7 @@ const App = () => {
 
           <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
 
-            <TabPanel header={t('teams.teams')} leftIcon="pi pi-user mr-2">
+            <TabPanel header={t('games.teams')} leftIcon="pi pi-user mr-2">
               <TeamsComponent
                 handleSuccess={(detail: string) => {
                   toast.current?.show({ severity: 'success', summary: 'Success', detail})

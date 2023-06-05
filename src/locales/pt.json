@@ -30,9 +30,7 @@
     "score-wrong-error": "A pontuação está errada",
     "score": "Pontuação",
     "semi-finals": "Semi-Finais",
-    "vs": "vs"
-  },
-  "teams": {
+    "vs": "vs",
     "courts": "Campos",
     "courts-example": "Ex: 1",
     "empty-error": "A equipa não pode estar vazia",
@@ -42,7 +40,9 @@
     "number-of-teams-description": "Min: 4 - Max: 16",
     "number-of-teams": "Número de equipas",
     "place": "{{place}} Lugar",
+    "reset": "Reiniciar",
     "reset-teams": "Repor equipas",
+    "save": "Guardar",
     "save-teams": "Guardar equipas",
     "team-saved": "Equipa guardada",
     "teams": "Equipas"

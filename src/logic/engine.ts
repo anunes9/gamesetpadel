@@ -108,34 +108,27 @@ const generateGames = (teams: Team[], group: string, courts: number[]): Game[] =
   return games
 }
 
-export const generateRound4Games = (teams: Team[], numberOfGroups: number): Game[] => {
+export const generateRound4Games = (teams: Team[], numberOfGroups: number, courts: number[]): Game[] => {
   let games = [] as unknown as Game[]
-
-  console.log(teams.length)
-  console.log(numberOfGroups)
-
 
   if (numberOfGroups === 2 && teams.length === 8) {
     const groupA = teams.filter(t => t.group === 'A').sort(sortTeams)
     const groupB = teams.filter(t => t.group === 'B').sort(sortTeams)
 
-    games = addGame(games, groupA[0], groupB[1], 4, 'A')
-    games = addGame(games, groupB[0], groupA[1], 4, 'A')
-
-    games = addGame(games, groupA[2], groupB[3], 4, 'B')
-    games = addGame(games, groupB[2], groupA[3], 4, 'B')
+    games = addGame(games, groupA[0], groupB[1], 4, 'A', courts[0])
+    games = addGame(games, groupB[0], groupA[1], 4, 'A', courts[1])
+    games = addGame(games, groupA[2], groupB[3], 4, 'B', courts[2])
+    games = addGame(games, groupB[2], groupA[3], 4, 'B', courts[3])
   }
   else if (numberOfGroups === 3 && teams.length === 12) {
     const sortedTeams = teams.sort(sortTeams)
 
-    games = addGame(games, sortedTeams[0], sortedTeams[1], 4, 'A')
-    games = addGame(games, sortedTeams[2], sortedTeams[3], 4, 'A')
-
-    games = addGame(games, sortedTeams[4], sortedTeams[5], 4, 'B')
-    games = addGame(games, sortedTeams[6], sortedTeams[7], 4, 'B')
-
-    games = addGame(games, sortedTeams[8], sortedTeams[9], 4, 'B')
-    games = addGame(games, sortedTeams[10], sortedTeams[11], 4, 'B')
+    games = addGame(games, sortedTeams[0], sortedTeams[1], 4, 'A', courts[0])
+    games = addGame(games, sortedTeams[2], sortedTeams[3], 4, 'A', courts[1])
+    games = addGame(games, sortedTeams[4], sortedTeams[5], 4, 'B', courts[2])
+    games = addGame(games, sortedTeams[6], sortedTeams[7], 4, 'B', courts[3])
+    games = addGame(games, sortedTeams[8], sortedTeams[9], 4, 'C', courts[4])
+    games = addGame(games, sortedTeams[10], sortedTeams[11], 4, 'C', courts[5])
   }
   else if (numberOfGroups === 4 && teams.length === 16) {
     const groupA = teams.filter(t => t.group === 'A').sort(sortTeams)
@@ -143,54 +136,49 @@ export const generateRound4Games = (teams: Team[], numberOfGroups: number): Game
     const groupC = teams.filter(t => t.group === 'C').sort(sortTeams)
     const groupD = teams.filter(t => t.group === 'D').sort(sortTeams)
 
-    games = addGame(games, groupA[0], groupB[1], 4, 'A')
-    games = addGame(games, groupB[0], groupA[1], 4, 'A')
-
-    games = addGame(games, groupC[0], groupD[1], 4, 'B')
-    games = addGame(games, groupD[0], groupC[1], 4, 'B')
-
-    games = addGame(games, groupA[2], groupB[3], 4, 'C')
-    games = addGame(games, groupB[2], groupA[3], 4, 'C')
-
-    games = addGame(games, groupC[2], groupD[3], 4, 'D')
-    games = addGame(games, groupD[2], groupC[3], 4, 'D')
+    games = addGame(games, groupA[0], groupB[1], 4, 'A', courts[0])
+    games = addGame(games, groupB[0], groupA[1], 4, 'A', courts[1])
+    games = addGame(games, groupC[0], groupD[1], 4, 'B', courts[2])
+    games = addGame(games, groupD[0], groupC[1], 4, 'B', courts[3])
+    games = addGame(games, groupA[2], groupB[3], 4, 'C', courts[4])
+    games = addGame(games, groupB[2], groupA[3], 4, 'C', courts[5])
+    games = addGame(games, groupC[2], groupD[3], 4, 'D', courts[6])
+    games = addGame(games, groupD[2], groupC[3], 4, 'D', courts[7])
   }
 
   return games
 }
 
-export const generateRound5Games = (round4Games: Game[], numberOfGroups: number) => {
+export const generateRound5Games = (round4Games: Game[], numberOfGroups: number, courts: number[]) => {
   let games = [] as unknown as Game[]
 
-  const getGames = (groupGames: Game[], group: string) => {
+  const getGames = (groupGames: Game[], group: string, courts: number[]) => {
     const winner1 = getWinner(groupGames[0])
     const winner2 = getWinner(groupGames[1])
     const loser1 = getLoser(groupGames[0])
     const loser2 = getLoser(groupGames[1])
 
-    games = addGame(games, winner1, winner2, 5, group)
-    games = addGame(games, loser1, loser2, 5, group)
+    games = addGame(games, winner1, winner2, 5, group, courts[0])
+    games = addGame(games, loser1, loser2, 5, group, courts[1])
   }
 
   if (numberOfGroups >= 2) {
     const groupA = round4Games.filter(team => team.group === 'A')
     const groupB = round4Games.filter(team => team.group === 'B')
 
-    getGames(groupA, 'A')
-    getGames(groupB, 'B')
+    getGames(groupA, 'A', courts.slice(0, 2))
+    getGames(groupB, 'B', courts.slice(2, 4))
   }
 
   if (numberOfGroups >= 3) {
     const groupC = round4Games.filter(team => team.group === 'C')
-    getGames(groupC, 'C')
+    getGames(groupC, 'C', courts.slice(4, 6))
   }
 
   if (numberOfGroups == 4) {
     const groupD = round4Games.filter(team => team.group === 'D')
-    getGames(groupD, 'D')
+    getGames(groupD, 'D', courts.slice(6, 8))
   }
-
-  console.log(games)
 
   return games
 }
@@ -223,7 +211,14 @@ export const calculateTeamPoints = (teams: Team[], games: Game[], resetScores?: 
   return newTeams
 }
 
-const addGame = (games: Game[], homeTeam: Team, awayTeam: Team, round: number, group: string) => games.concat({
+const addGame = (
+  games: Game[],
+  homeTeam: Team,
+  awayTeam: Team,
+  round: number,
+  group: string,
+  court?: number
+) => games.concat({
   id: uuidv4(),
   score: '',
   winner: undefined,
@@ -232,7 +227,7 @@ const addGame = (games: Game[], homeTeam: Team, awayTeam: Team, round: number, g
   awayTeam,
   round,
   group,
-  court: 0
+  court: court || 0
 })
 
 // sort teams by win games and by diff of points

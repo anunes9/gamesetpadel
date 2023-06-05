@@ -19,7 +19,8 @@ type SavedData  = {
   round4Games: Game[]
   round5Games: Game[]
   teams: Team[]
-  classification: []
+  classification: Team[]
+  courts: number[]
 }
 
 interface GamesContextType {
@@ -51,6 +52,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     : {
       teams: [],
       classification: [],
+      courts: [],
       round1Games: [],
       round2Games: [],
       round3Games: [],
@@ -66,6 +68,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
   const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[] || [])
   const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
   const [classification, setClassification] = useState(initialData.classification as unknown as Team[] || [])
+  const [courts, setCourts] = useState(initialData.courts || [])
   const [numberOfRounds, setNumberOfRounds] = useState(initialData.numberOfRounds)
   const [numberOfGroups, setNumberOfGroups] = useState(initialData.numberOfGroups)
 
@@ -79,7 +82,8 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       round4Games,
       round5Games,
       teams,
-      classification
+      classification,
+      courts
     })
 
     if (!isEqual(savedData, data)) window.localStorage.setItem(localStorageKey, data)
@@ -105,14 +109,17 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     setRound4Games([])
     setRound5Games([])
     setTeams([])
+    setClassification([])
+    setCourts([])
   }
 
-  const handleSetTeams = (newTeams: string[], rounds: number, groups: number, courts: number[]) => {
+  const handleSetTeams = (newTeams: string[], rounds: number, groups: number, availableCourts: number[]) => {
     if (JSON.stringify(newTeams) !== JSON.stringify(teams)) {
-      const engine = GameSetPadelEngine(newTeams, courts)
+      const engine = GameSetPadelEngine(newTeams, availableCourts)
 
       setNumberOfGroups(groups)
       setNumberOfRounds(rounds)
+      setCourts(availableCourts)
 
       setRound1Games(engine.games.filter(g => g.round === 1))
       setRound2Games(engine.games.filter(g => g.round === 2))
@@ -175,6 +182,16 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     setTeams(calculateTeamPoints(teams, games, resetScores))
   }
 
+  const generateRound4 = () => {
+    const games = generateRound4Games(teams, numberOfGroups, courts)
+    setRound4Games(games)
+  }
+
+  const generateRound5 = () => {
+    const games = generateRound5Games(round4Games, numberOfGroups, courts)
+    setRound5Games(games)
+  }
+
   return (
     <GamesContext.Provider
       value={{
@@ -187,12 +204,12 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         round5Games,
         teams,
         classification,
-
+        // functions
         handleResetGames,
         handleSetTeams,
         handleUpdateScore,
-        generateRound4: () => setRound4Games(generateRound4Games(teams, numberOfGroups)),
-        generateRound5: () => setRound5Games(generateRound5Games(round4Games, numberOfGroups)),
+        generateRound4,
+        generateRound5
       }}
     >
       {children}

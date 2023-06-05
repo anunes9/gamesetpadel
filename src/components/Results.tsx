@@ -4,11 +4,12 @@ import { Card } from 'primereact/card'
 import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { useTranslation } from 'react-i18next'
-import { Game, Team, letters, sortTeams } from '../logic/engine'
+import { Game, letters, sortTeams } from '../logic/engine'
+import { ClassificationCard } from './Classification'
 
 export const ResultsComponent = () => {
   const { t } = useTranslation()
-  const { classification, teams, numberOfGroups, round4Games, round5Games } = useContext(GamesContext)
+  const { teams, numberOfGroups, round4Games, round5Games } = useContext(GamesContext)
 
   const cardStyle = {
     body: { className: 'p-0' },
@@ -68,46 +69,10 @@ export const ResultsComponent = () => {
               <Column field="score" header={t('games.score')}/>
             </DataTable>
           </Card>
+
+          <ClassificationCard />
         </>
       )}
-
-
-      <ClassificationCard />
     </div>
-  )
-}
-
-export const ClassificationCard = () => {
-  const { t } = useTranslation()
-  const { classification } = useContext(GamesContext)
-
-  const cardStyle = {
-    body: { className: 'p-0 mt-8' },
-    content: { className: 'p-0' }
-  }
-
-  const positionTemplate = (team: Team) => <p className="font-bold">{t('teams.place', { place: team.index! +1})}</p>
-
-  return (
-    <Card pt={cardStyle}>
-      <p className="font-bold text-xl m-0 ml-3 mb-3 pt-3">
-        {t('games.final-classification')}
-      </p>
-
-      <DataTable
-        className="mb-3"
-        stripedRows
-        value={classification.sort(sortTeams).map((t, index) => ({...t, index}))}
-      >
-        <Column
-          field="index"
-          header={t('games.position')}
-          body={positionTemplate}
-        />
-        <Column field="name" header={t('games.name')} />
-        <Column field="points" header={t('games.points')} />
-        <Column field="diff" header={t('games.diff')} />
-      </DataTable>
-    </Card>
   )
 }

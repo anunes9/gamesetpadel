@@ -41,7 +41,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
     { value, touched, field }:
     { value: string, touched: FormikTouched<FormType>, field: string }
   ) => {
-    if (value === '' && getIn(touched, field)) return <small className="p-error">{t('teams.empty-error')}</small>
+    if (value === '' && getIn(touched, field)) return <small className="p-error">{t('games.empty-error')}</small>
     return null
   }
 
@@ -59,10 +59,10 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
 
         const availableCourts = courts.filter(Number).length === numberOfTeams / 2
           ? courts as unknown as number[]
-          : [...Array(teams.length).keys()]
+          : [...Array(teams.length).keys()].map(_ => 0)
 
         handleSetTeams(teams, numberOfGames, numberOfGroups, availableCourts)
-        handleSuccess(t('teams.team-saved'))
+        handleSuccess(t('games.team-saved'))
       }}
       validate={(values) => values.teams.filter(Boolean).length === values.numberOfTeams ? {} : { teams: true }}
     >
@@ -75,7 +75,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
           <div className="flex flex-column md:flex-row gap-3 align-items-start justify-content-between">
             <div>
               <label htmlFor="numberOfTeams" className="font-bold block mb-1">
-                {t('teams.number-of-teams')}
+                {t('games.number-of-teams')}
               </label>
 
               <InputNumber
@@ -112,13 +112,13 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
               />
 
               <small className="block mt-2">
-                {t('teams.number-of-teams-description')}
+                {t('games.number-of-teams-description')}
               </small>
             </div>
 
             <div>
               <label htmlFor="numberOfGames" className="font-bold block mb-2">
-                {t('teams.number-of-games')}
+                {t('games.number-of-games')}
               </label>
 
               <InputNumber
@@ -133,7 +133,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
 
             <div>
               <label htmlFor="numberOfGroups" className="font-bold block mb-2">
-                {t('teams.number-of-groups')}
+                {t('games.number-of-groups')}
               </label>
 
               <InputNumber
@@ -148,7 +148,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
           </div>
 
           <p className="font-bold mb-2 mt-4 text-lg">
-            {t('teams.teams')}
+            {t('games.teams')}
           </p>
 
           <FieldArray
@@ -167,7 +167,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
                         name={team}
                         value={team}
                         onChange={(e) => setFieldValue(`teams.${index}`, e.target.value)}
-                        placeholder={t('teams.example')!}
+                        placeholder={t('games.example')!}
                       />
                     </div>
 
@@ -179,7 +179,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
           />
 
           <p className="font-bold mb-2 mt-4 text-lg">
-            {t('teams.courts')}
+            {t('games.courts')}
           </p>
 
           <FieldArray
@@ -197,7 +197,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
                         id={`courts.${index}`}
                         value={court}
                         onChange={(e) => setFieldValue(`courts.${index}`, e.value)}
-                        placeholder={t('teams.courts-example')!}
+                        placeholder={t('games.courts-example')!}
                       />
                     </div>
                   </div>
@@ -207,7 +207,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
           />
 
           <div className="flex flex-row justify-content-end gap-4 mt-4">
-            <Button disabled={disabled} type="submit" label={t('teams.save-teams')!} />
+            <Button disabled={disabled} type="submit" label={t('games.save')!} />
 
             <Button
               type="button"
@@ -215,7 +215,7 @@ export const TeamsComponent = ({ handleSuccess, handleInfoMessage }: TeamsCompon
                 handleReset()
                 handleResetGames()
               }}
-              label={t('teams.reset-teams')!}
+              label={t('games.reset')!}
               severity="danger"
             />
           </div>

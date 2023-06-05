@@ -6,7 +6,7 @@ import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { useTranslation } from 'react-i18next'
 import { Game } from '../logic/engine'
-import { ClassificationCard } from './Results'
+import { ClassificationCard } from './Classification'
 
 interface GamesComponentType {
   showToast: (detail: string) => void
@@ -46,7 +46,6 @@ export const GamesComponent = ({ showToast }: GamesComponentType) => {
           className="mb-2"
           header={t('games.round', {round: i+1})}
           toggleable
-          collapsed={i !== 0}
         >
           <GameForm games={games} handleSubmit={(games) => updateScore(games, i+1)} />
         </Panel>
@@ -57,22 +56,23 @@ export const GamesComponent = ({ showToast }: GamesComponentType) => {
           <Panel className="mb-2" header={t('games.round', {round: 4})} toggleable collapsed>
             <Button className="mb-3" onClick={generateRound4} label={t('games.generate-games')!} />
 
-            {round4Games.length !== 0 &&
+            {round4Games.length !== 0 && (
               <GameForm games={round4Games} handleSubmit={(games) => updateScore(games, 4)} />
-            }
+            )}
           </Panel>
 
           <Panel className="mb-2" header={t('games.round', {round: 5})} toggleable collapsed>
             <Button className="mb-3" onClick={generateRound5} label={t('games.generate-games')!} />
 
-            {round5Games.length !== 0 &&
+            {round5Games.length !== 0 && (
               <GameForm games={round5Games} handleSubmit={(games) => updateScore(games, 5)} />
-            }
+            )}
           </Panel>
+
+          <ClassificationCard />
         </>
       )}
 
-      <ClassificationCard />
     </div>
   )
 }
