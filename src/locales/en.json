@@ -9,6 +9,7 @@
   "games": {
     "court-id": "Court {{number}}",
     "diff": "Diff",
+    "final-classification": "Final Classification",
     "finals": "Finals",
     "games-empty": "Set teams first to generate the games",
     "game": "Game",
@@ -19,6 +20,7 @@
     "name": "Name",
     "optimal-error": "The games generated might not be optimal for this number of teams",
     "points": "Points",
+    "position": "Position",
     "result-empty": "Set teams first to generate the results",
     "results": "Results",
     "results-saved": "Game results saved!",
@@ -39,6 +41,7 @@
     "number-of-groups": "Number of groups",
     "number-of-teams-description": "Min: 4 - Max: 16",
     "number-of-teams": "Number of teams",
+    "place": "{{place}} Place",
     "reset-teams": "Reset teams",
     "save-teams": "Save teams",
     "team-saved": "Team Saved",

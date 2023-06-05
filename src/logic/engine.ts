@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 
 export type Team = {
+  index?: number
   id: string
   name: string
   points: number
@@ -109,41 +110,63 @@ const generateGames = (teams: Team[], group: string, courts: number[]): Game[] =
 
 export const generateRound4Games = (teams: Team[], numberOfGroups: number): Game[] => {
   let games = [] as unknown as Game[]
-  const sortedTeams = teams.sort(sortTeams)
 
-  if (numberOfGroups >= 2) {
-    const groupA = sortedTeams.slice(0, 4)
-    games = addGame(games, groupA[0], groupA[1], 4, 'A')
-    games = addGame(games, groupA[2], groupA[3], 4, 'A')
+  console.log(teams.length)
+  console.log(numberOfGroups)
 
-    const groupB = sortedTeams.slice(4, 8)
-    games = addGame(games, groupB[0], groupB[1], 4, 'B')
-    games = addGame(games, groupB[2], groupB[3], 4, 'B')
+
+  if (numberOfGroups === 2 && teams.length === 8) {
+    const groupA = teams.filter(t => t.group === 'A').sort(sortTeams)
+    const groupB = teams.filter(t => t.group === 'B').sort(sortTeams)
+
+    games = addGame(games, groupA[0], groupB[1], 4, 'A')
+    games = addGame(games, groupB[0], groupA[1], 4, 'A')
+
+    games = addGame(games, groupA[2], groupB[3], 4, 'B')
+    games = addGame(games, groupB[2], groupA[3], 4, 'B')
   }
+  else if (numberOfGroups === 3 && teams.length === 12) {
+    const sortedTeams = teams.sort(sortTeams)
 
-  if (numberOfGroups >= 3) {
-    const groupC = sortedTeams.slice(8, 12)
-    games = addGame(games, groupC[0], groupC[1], 4, 'C')
-    games = addGame(games, groupC[2], groupC[3], 4, 'C')
+    games = addGame(games, sortedTeams[0], sortedTeams[1], 4, 'A')
+    games = addGame(games, sortedTeams[2], sortedTeams[3], 4, 'A')
+
+    games = addGame(games, sortedTeams[4], sortedTeams[5], 4, 'B')
+    games = addGame(games, sortedTeams[6], sortedTeams[7], 4, 'B')
+
+    games = addGame(games, sortedTeams[8], sortedTeams[9], 4, 'B')
+    games = addGame(games, sortedTeams[10], sortedTeams[11], 4, 'B')
   }
+  else if (numberOfGroups === 4 && teams.length === 16) {
+    const groupA = teams.filter(t => t.group === 'A').sort(sortTeams)
+    const groupB = teams.filter(t => t.group === 'B').sort(sortTeams)
+    const groupC = teams.filter(t => t.group === 'C').sort(sortTeams)
+    const groupD = teams.filter(t => t.group === 'D').sort(sortTeams)
 
-  if (numberOfGroups === 4) {
-    const groupD = sortedTeams.slice(12, 16)
-    games = addGame(games, groupD[0], groupD[1], 4, 'D')
-    games = addGame(games, groupD[2], groupD[3], 4, 'D')
+    games = addGame(games, groupA[0], groupB[1], 4, 'A')
+    games = addGame(games, groupB[0], groupA[1], 4, 'A')
+
+    games = addGame(games, groupC[0], groupD[1], 4, 'B')
+    games = addGame(games, groupD[0], groupC[1], 4, 'B')
+
+    games = addGame(games, groupA[2], groupB[3], 4, 'C')
+    games = addGame(games, groupB[2], groupA[3], 4, 'C')
+
+    games = addGame(games, groupC[2], groupD[3], 4, 'D')
+    games = addGame(games, groupD[2], groupC[3], 4, 'D')
   }
 
   return games
 }
 
 export const generateRound5Games = (round4Games: Game[], numberOfGroups: number) => {
-  const games = [] as unknown as Game[]
+  let games = [] as unknown as Game[]
 
-  const getGames = (games: Game[], group: string) => {
-    const winner1 = getWinner(games[0])
-    const winner2 = getWinner(games[1])
-    const loser1 = getLoser(games[0])
-    const loser2 = getLoser(games[1])
+  const getGames = (groupGames: Game[], group: string) => {
+    const winner1 = getWinner(groupGames[0])
+    const winner2 = getWinner(groupGames[1])
+    const loser1 = getLoser(groupGames[0])
+    const loser2 = getLoser(groupGames[1])
 
     games = addGame(games, winner1, winner2, 5, group)
     games = addGame(games, loser1, loser2, 5, group)
@@ -167,12 +190,14 @@ export const generateRound5Games = (round4Games: Game[], numberOfGroups: number)
     getGames(groupD, 'D')
   }
 
+  console.log(games)
+
   return games
 }
 
-export const calculateTeamPoints = (teams: Team[], games: Game[]) => {
+export const calculateTeamPoints = (teams: Team[], games: Game[], resetScores?: boolean) => {
   // resets team points
-  const newTeams = [...teams.map(team => ({ ...team, points: 0, diff: 0 }))]
+  const newTeams = resetScores ? [...teams.map(team => ({ ...team, points: 0, diff: 0 }))] : [...teams]
   let winner = null as unknown as Team
   let loser = null as unknown as Team
 

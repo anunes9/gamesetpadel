@@ -19,6 +19,7 @@ type SavedData  = {
   round4Games: Game[]
   round5Games: Game[]
   teams: Team[]
+  classification: []
 }
 
 interface GamesContextType {
@@ -30,6 +31,7 @@ interface GamesContextType {
   round4Games: Game[]
   round5Games: Game[]
   teams: Team[]
+  classification: Team[]
   // functions
   handleUpdateScore: (is: string, score: string, round: number) => void
   handleSetTeams: (teams: string[], rounds: number, groups: number, courts: number[]) => void
@@ -48,6 +50,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     ? JSON.parse(savedData)
     : {
       teams: [],
+      classification: [],
       round1Games: [],
       round2Games: [],
       round3Games: [],
@@ -59,9 +62,10 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
   const [round1Games, setRound1Games] = useState(initialData.round1Games as unknown as Game[] || [])
   const [round2Games, setRound2Games] = useState(initialData.round2Games as unknown as Game[] || [])
   const [round3Games, setRound3Games] = useState(initialData.round3Games as unknown as Game[] || [])
-  const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[])
-  const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[])
+  const [round4Games, setRound4Games] = useState(initialData.round4Games as unknown as Game[] || [])
+  const [round5Games, setRound5Games] = useState(initialData.round5Games as unknown as Game[] || [])
   const [teams, setTeams] = useState(initialData.teams as unknown as Team[])
+  const [classification, setClassification] = useState(initialData.classification as unknown as Team[] || [])
   const [numberOfRounds, setNumberOfRounds] = useState(initialData.numberOfRounds)
   const [numberOfGroups, setNumberOfGroups] = useState(initialData.numberOfGroups)
 
@@ -74,7 +78,8 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       round3Games,
       round4Games,
       round5Games,
-      teams
+      teams,
+      classification
     })
 
     if (!isEqual(savedData, data)) window.localStorage.setItem(localStorageKey, data)
@@ -86,7 +91,8 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     round3Games,
     round4Games,
     round5Games,
-    teams
+    teams,
+    classification
   ])
 
   const handleResetGames = () => {
@@ -155,16 +161,18 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
       copyGames.find(g => g.id === gameId)!.winner = winner
 
       updateGames(copyGames)
-      if (teams.length === 6 || round < 4) calculatePoints()
+      if (teams.length === 6 || round < 4) calculatePoints(true)
+      else if (round === 4) setClassification(calculateTeamPoints(teams, round4Games, false))
+      else if (round === 5) setClassification(calculateTeamPoints(teams, round5Games, false))
     }
   }
 
-  const calculatePoints = () => {
+  const calculatePoints = (resetScores: boolean) => {
     const games = teams.length === 6
       ? [...round1Games, ...round2Games, ...round3Games, ...round4Games, ...round5Games]
       : [...round1Games, ...round2Games, ...round3Games]
 
-    setTeams(calculateTeamPoints(teams, games))
+    setTeams(calculateTeamPoints(teams, games, resetScores))
   }
 
   return (
@@ -178,12 +186,13 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         round4Games,
         round5Games,
         teams,
+        classification,
 
         handleResetGames,
         handleSetTeams,
         handleUpdateScore,
-        generateRound4: () => generateRound4Games(teams, numberOfGroups),
-        generateRound5: () => generateRound5Games(round4Games, numberOfGroups),
+        generateRound4: () => setRound4Games(generateRound4Games(teams, numberOfGroups)),
+        generateRound5: () => setRound5Games(generateRound5Games(round4Games, numberOfGroups)),
       }}
     >
       {children}

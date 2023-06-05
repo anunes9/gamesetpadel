@@ -6,6 +6,7 @@ import { useContext } from 'react'
 import { GamesContext } from '../context/GameContext'
 import { useTranslation } from 'react-i18next'
 import { Game } from '../logic/engine'
+import { ClassificationCard } from './Results'
 
 interface GamesComponentType {
   showToast: (detail: string) => void
@@ -53,7 +54,7 @@ export const GamesComponent = ({ showToast }: GamesComponentType) => {
 
       {numberOfGroups > 1 && (
         <>
-          <Panel className="mb-2" header={t('games.semi-finals')} toggleable collapsed>
+          <Panel className="mb-2" header={t('games.round', {round: 4})} toggleable collapsed>
             <Button className="mb-3" onClick={generateRound4} label={t('games.generate-games')!} />
 
             {round4Games.length !== 0 &&
@@ -61,7 +62,7 @@ export const GamesComponent = ({ showToast }: GamesComponentType) => {
             }
           </Panel>
 
-          <Panel className="mb-2" header={t('games.finals')} toggleable collapsed>
+          <Panel className="mb-2" header={t('games.round', {round: 5})} toggleable collapsed>
             <Button className="mb-3" onClick={generateRound5} label={t('games.generate-games')!} />
 
             {round5Games.length !== 0 &&
@@ -70,6 +71,8 @@ export const GamesComponent = ({ showToast }: GamesComponentType) => {
           </Panel>
         </>
       )}
+
+      <ClassificationCard />
     </div>
   )
 }
